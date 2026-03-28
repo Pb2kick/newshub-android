@@ -73,14 +73,25 @@ Implemented through `ApiResult.Failure` + `ErrorMapper`:
 - For grading prep, use `docs/SUBMISSION_CHECKLIST.md`.
 
 ## Screenshots (Required for Submission)
-Add screenshots in a folder like `docs/screenshots/` and update paths below.
+Store screenshots in `docs/screenshots/` using the filenames below.
 
-- Register: `docs/screenshots/register.png`
-- Login: `docs/screenshots/login.png`
-- Dashboard: `docs/screenshots/dashboard.png`
-- Profile: `docs/screenshots/profile.png`
-- Update Profile: `docs/screenshots/update-profile.png`
-- Change Password: `docs/screenshots/change-password.png`
+### Register
+![Register Screen](docs/screenshots/register.png)
+
+### Login
+![Login Screen](docs/screenshots/login.png)
+
+### Dashboard
+![Dashboard Screen](docs/screenshots/dashboard.png)
+
+### Profile
+![Profile Screen](docs/screenshots/profile.png)
+
+### Update Profile
+![Update Profile Screen](docs/screenshots/update-profile.png)
+
+### Change Password
+![Change Password Screen](docs/screenshots/change-password.png)
 
 ## Build
 ```powershell
