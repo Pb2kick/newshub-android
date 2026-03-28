@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import coil.load
+import coil.request.CachePolicy
 import com.example.newshub.databinding.FragmentProfileBinding
 import com.example.newshub.network.ApiFailureType
 import com.example.newshub.network.ApiResult
@@ -45,6 +46,8 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        showAvatarPlaceholder()
 
         val placeholderClick = View.OnClickListener {
             Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
@@ -248,10 +251,8 @@ class ProfileFragment : Fragment() {
     private fun bindProfile(profile: ProfileRecord) {
         binding.editFirstName.setText(profile.firstName)
         binding.editLastName.setText(profile.lastName)
-        avatarUrl = profile.avatarUrl
-        if (!profile.avatarUrl.isNullOrBlank()) {
-            binding.imageProfileAvatar.load(profile.avatarUrl)
-        }
+        avatarUrl = normalizeAvatarUrl(profile.avatarUrl)
+        loadAvatar(avatarUrl)
         updateFullName()
         showToast(R.string.profile_loaded)
     }
@@ -295,7 +296,7 @@ class ProfileFragment : Fragment() {
                 is ApiResult.Success -> {
                     val uploadedUrl = uploadResult.data
                     avatarUrl = uploadedUrl
-                    binding.imageProfileAvatar.load(uploadedUrl)
+                    loadAvatar(uploadedUrl)
 
                     val firstName = binding.editFirstName.text?.toString()?.trim().orEmpty()
                     val lastName = binding.editLastName.text?.toString()?.trim().orEmpty()
@@ -366,6 +367,68 @@ class ProfileFragment : Fragment() {
             .filter { it.isNotBlank() }
             .joinToString(" ")
         binding.editFullName.setText(fullName)
+    }
+
+    private fun loadAvatar(rawAvatarUrl: String?) {
+        val resolved = normalizeAvatarUrl(rawAvatarUrl)
+        if (resolved.isNullOrBlank()) {
+            showAvatarPlaceholder()
+            return
+        }
+
+        binding.imageProfileAvatar.apply {
+            // Remove icon-only styling before rendering a real photo.
+            imageTintList = null
+            scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
+            setPadding(0, 0, 0, 0)
+        }
+
+        binding.imageProfileAvatar.load(resolved) {
+            crossfade(true)
+            memoryCachePolicy(CachePolicy.ENABLED)
+            diskCachePolicy(CachePolicy.ENABLED)
+            listener(
+                onError = { _, _ ->
+                    showAvatarPlaceholder()
+                }
+            )
+        }
+    }
+
+    private fun showAvatarPlaceholder() {
+        binding.imageProfileAvatar.apply {
+            imageTintList = android.content.res.ColorStateList.valueOf(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.profile_avatar_icon)
+            )
+            scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
+            setPadding(28.dpToPx(), 28.dpToPx(), 28.dpToPx(), 28.dpToPx())
+            setImageResource(android.R.drawable.ic_menu_myplaces)
+        }
+    }
+
+    private fun normalizeAvatarUrl(raw: String?): String? {
+        val value = raw?.trim().orEmpty()
+        if (value.isBlank()) return null
+
+        if (value.startsWith("http://") || value.startsWith("https://")) {
+            return value
+        }
+
+        val bucket = BuildConfig.SUPABASE_PROFILE_BUCKET.trim('/')
+        val cleaned = value
+            .removePrefix("storage/v1/object/public/")
+            .removePrefix("/storage/v1/object/public/")
+            .removePrefix("public/")
+            .removePrefix("$bucket/")
+            .trim('/')
+
+        return if (cleaned.isBlank()) null else {
+            "${BuildConfig.SUPABASE_URL}/storage/v1/object/public/$bucket/$cleaned"
+        }
+    }
+
+    private fun Int.dpToPx(): Int {
+        return (this * resources.displayMetrics.density).toInt()
     }
 
     override fun onDestroyView() {

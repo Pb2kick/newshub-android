@@ -78,7 +78,12 @@ class RegisterFragment : Fragment() {
         binding.progressRegister.visibility = View.VISIBLE
 
         lifecycleScope.launch {
-            val result = supabaseService.signUpWithPassword(email, password)
+            val result = supabaseService.signUpWithPassword(
+                email = email,
+                password = password,
+                firstName = firstName,
+                lastName = lastName
+            )
             binding.buttonCreateAccount.isEnabled = true
             binding.progressRegister.visibility = View.GONE
 

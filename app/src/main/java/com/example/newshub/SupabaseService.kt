@@ -7,7 +7,6 @@ import com.example.newshub.network.ApiResult
 import com.example.newshub.network.ErrorMapper
 import com.example.newshub.network.model.AuthTokenRequest
 import com.example.newshub.network.model.ChangePasswordRequest
-import com.example.newshub.network.model.ProfileUpsertRequest
 import com.example.newshub.network.model.SignUpRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -40,6 +39,9 @@ data class AuthUserRecord(
 
 class SupabaseService {
 
+    private val fallbackUserIdColumns = listOf("auth_user_id", "user_id", "id")
+    private val fallbackPhotoColumns = listOf("profile_photo_url", "avatar_url", "photo_url", "picture")
+
     private val authApi by lazy { ApiClient.authApi(BuildConfig.SUPABASE_URL) }
     private val restApi by lazy { ApiClient.restApi(BuildConfig.SUPABASE_URL) }
     private val storageApi by lazy { ApiClient.storageApi(BuildConfig.SUPABASE_URL) }
@@ -70,9 +72,19 @@ class SupabaseService {
         }
     }
 
-    suspend fun signUpWithPassword(email: String, password: String): ApiResult<AuthSession?> = withContext(Dispatchers.IO) {
+    suspend fun signUpWithPassword(
+        email: String,
+        password: String,
+        firstName: String,
+        lastName: String
+    ): ApiResult<AuthSession?> = withContext(Dispatchers.IO) {
         runApiCall {
-            val signUpData = mapOf("full_name" to "")
+            val fullName = listOf(firstName.trim(), lastName.trim()).filter { it.isNotBlank() }.joinToString(" ")
+            val signUpData = mapOf(
+                "first_name" to firstName.trim(),
+                "last_name" to lastName.trim(),
+                "full_name" to fullName
+            )
             val response = authApi.signUpWithPassword(
                 apiKey = BuildConfig.SUPABASE_ANON_KEY,
                 request = SignUpRequest(email = email, password = password, data = signUpData)
@@ -96,38 +108,30 @@ class SupabaseService {
 
     suspend fun fetchProfile(userId: String, accessToken: String?): ApiResult<ProfileRecord?> = withContext(Dispatchers.IO) {
         runApiCall {
-            val encodedUserId = urlEncode(userId)
-            val userIdColumn = BuildConfig.SUPABASE_PROFILE_USER_ID_COLUMN
-            val photoColumn = BuildConfig.SUPABASE_PROFILE_PHOTO_COLUMN
-            val url = "${BuildConfig.SUPABASE_URL}/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}" +
-                "?$userIdColumn=eq.$encodedUserId&select=first_name,last_name,full_name,$photoColumn&limit=1"
-
-            val response = restApi.fetchRows(
-                url = url,
-                apiKey = BuildConfig.SUPABASE_ANON_KEY,
-                authorization = bearer(accessToken)
-            )
-
-            if (!response.isSuccessful) {
-                return@runApiCall ApiResult.Failure(mapFailure(response))
+            val requestedUserIdColumn = BuildConfig.SUPABASE_PROFILE_USER_ID_COLUMN
+            val lookupColumns = linkedSetOf(requestedUserIdColumn).apply {
+                addAll(fallbackUserIdColumns)
             }
 
-            val firstRow = response.body().orEmpty().firstOrNull() ?: return@runApiCall ApiResult.Success(null)
-            val firstName = firstRow.firstName.orEmpty()
-            val lastName = firstRow.lastName.orEmpty()
-            val fullName = firstRow.fullName.orEmpty().ifBlank {
-                listOf(firstName, lastName).filter { it.isNotBlank() }.joinToString(" ")
-            }
-            val avatarUrl = firstRow.profilePhotoUrl
+            for (candidateColumn in lookupColumns) {
+                val queryResult = fetchProfileByColumn(userId, candidateColumn, accessToken)
 
-            ApiResult.Success(
-                ProfileRecord(
-                    firstName = firstName,
-                    lastName = lastName,
-                    fullName = fullName,
-                    avatarUrl = avatarUrl
-                )
-            )
+                when (queryResult) {
+                    is ApiResult.Success -> {
+                        if (queryResult.data != null) {
+                            return@runApiCall ApiResult.Success(queryResult.data)
+                        }
+                    }
+
+                    is ApiResult.Failure -> {
+                        if (!queryResult.error.detail.orEmpty().contains("column", ignoreCase = true)) {
+                            return@runApiCall queryResult
+                        }
+                    }
+                }
+            }
+
+            ApiResult.Success(null)
         }
     }
 
@@ -142,13 +146,14 @@ class SupabaseService {
         runApiCall {
             val userIdColumn = BuildConfig.SUPABASE_PROFILE_USER_ID_COLUMN
             val encodedUserId = urlEncode(userId)
-
-            val patchPayload = ProfileUpsertRequest(
-                firstName = firstName,
-                lastName = lastName,
-                fullName = "$firstName $lastName".trim(),
-                profilePhotoUrl = avatarUrl
+            val resolvedFullName = "$firstName $lastName".trim()
+            val photoColumn = BuildConfig.SUPABASE_PROFILE_PHOTO_COLUMN
+            val patchPayload = mutableMapOf<String, Any?>(
+                "first_name" to firstName,
+                "last_name" to lastName,
+                "full_name" to resolvedFullName
             )
+            patchPayload[photoColumn] = avatarUrl
 
             val patchResponse = restApi.patchRows(
                 url = "${BuildConfig.SUPABASE_URL}/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}?$userIdColumn=eq.$encodedUserId",
@@ -165,14 +170,14 @@ class SupabaseService {
                 return@runApiCall ApiResult.Success(Unit)
             }
 
-            val insertPayload = ProfileUpsertRequest(
-                authUserId = userId,
-                firstName = firstName,
-                lastName = lastName,
-                fullName = "$firstName $lastName".trim(),
-                profilePhotoUrl = avatarUrl,
-                email = email
+            val insertPayload = mutableMapOf<String, Any?>(
+                userIdColumn to userId,
+                "first_name" to firstName,
+                "last_name" to lastName,
+                "full_name" to resolvedFullName,
+                "email" to email
             )
+            insertPayload[photoColumn] = avatarUrl
 
             val insertResponse = restApi.insertRow(
                 url = "${BuildConfig.SUPABASE_URL}/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}",
@@ -298,12 +303,58 @@ class SupabaseService {
         return ErrorMapper.fromStatusCode(response.code(), detail)
     }
 
+    private suspend fun fetchProfileByColumn(
+        userId: String,
+        userIdColumn: String,
+        accessToken: String?
+    ): ApiResult<ProfileRecord?> {
+        val encodedUserId = urlEncode(userId)
+        val photoColumns = linkedSetOf(BuildConfig.SUPABASE_PROFILE_PHOTO_COLUMN).apply {
+            addAll(fallbackPhotoColumns)
+        }
+        val selectColumns = linkedSetOf("first_name", "last_name", "full_name").apply {
+            addAll(photoColumns)
+        }.joinToString(",")
+
+        val url = "${BuildConfig.SUPABASE_URL}/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}" +
+            "?$userIdColumn=eq.$encodedUserId&select=$selectColumns&limit=1"
+
+        val response = restApi.fetchRows(
+            url = url,
+            apiKey = BuildConfig.SUPABASE_ANON_KEY,
+            authorization = bearer(accessToken)
+        )
+
+        if (!response.isSuccessful) {
+            return ApiResult.Failure(mapFailure(response))
+        }
+
+        val firstRow = response.body().orEmpty().firstOrNull() ?: return ApiResult.Success(null)
+        val firstName = firstRow.optString("first_name")
+        val lastName = firstRow.optString("last_name")
+        val fullName = firstRow.optString("full_name").ifBlank {
+            listOf(firstName, lastName).filter { it.isNotBlank() }.joinToString(" ")
+        }
+        val avatarUrl = firstRow.optString(*photoColumns.toTypedArray()).ifBlank { "" }.ifBlank { null }
+
+        return ApiResult.Success(
+            ProfileRecord(
+                firstName = firstName,
+                lastName = lastName,
+                fullName = fullName,
+                avatarUrl = avatarUrl
+            )
+        )
+    }
+
 
     private fun Map<String, Any?>.optString(vararg keys: String): String {
         for (key in keys) {
             val value = this[key]
-            if (value is String && value.isNotBlank()) {
-                return value
+            when (value) {
+                is String -> if (value.isNotBlank()) return value
+                is Number -> return value.toString()
+                is Boolean -> return value.toString()
             }
         }
         return ""

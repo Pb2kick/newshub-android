@@ -88,7 +88,7 @@ Store screenshots in `docs/screenshots/` using the filenames below.
 ![Profile Screen](docs/screenshots/profile.png)
 
 ### Update Profile
-![Update Profile Screen](docs/screenshots/update-profile.png)
+![Update Profile Screen](docs/screenshots/profile-edit.png)
 
 ### Change Password
 ![Change Password Screen](docs/screenshots/change-password.png)

@@ -1,7 +1,5 @@
 package com.example.newshub.network
 
-import com.example.newshub.network.model.ProfileRowResponse
-import com.example.newshub.network.model.ProfileUpsertRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -18,7 +16,7 @@ interface SupabaseRestApi {
         @Header("apikey") apiKey: String,
         @Header("Authorization") authorization: String,
         @Header("Accept") accept: String = "application/json"
-    ): Response<List<ProfileRowResponse>>
+    ): Response<List<Map<String, Any?>>>
 
     @PATCH
     suspend fun patchRows(
@@ -27,8 +25,8 @@ interface SupabaseRestApi {
         @Header("Authorization") authorization: String,
         @Header("Content-Type") contentType: String = "application/json",
         @Header("Prefer") prefer: String = "return=representation",
-        @Body body: ProfileUpsertRequest
-    ): Response<List<ProfileRowResponse>>
+        @Body body: Map<String, @JvmSuppressWildcards Any?>
+    ): Response<List<Map<String, Any?>>>
 
     @POST
     suspend fun insertRow(
@@ -37,7 +35,7 @@ interface SupabaseRestApi {
         @Header("Authorization") authorization: String,
         @Header("Content-Type") contentType: String = "application/json",
         @Header("Prefer") prefer: String = "return=minimal",
-        @Body body: ProfileUpsertRequest
+        @Body body: Map<String, @JvmSuppressWildcards Any?>
     ): Response<Unit>
 }
 
