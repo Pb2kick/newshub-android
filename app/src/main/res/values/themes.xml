@@ -1,0 +1,11 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.NewsHub" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/auth_primary</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="android:statusBarColor">@color/auth_background</item>
+        <item name="android:navigationBarColor">@color/auth_background</item>
+    </style>
+
+    <style name="Theme.NewsHub" parent="Base.Theme.NewsHub" />
+</resources>
