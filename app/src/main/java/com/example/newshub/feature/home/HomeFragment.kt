@@ -1,4 +1,4 @@
-package com.example.newshub
+package com.example.newshub.feature.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,18 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import com.example.newshub.R
+import com.example.newshub.core.session.AndroidSessionStore
 import com.example.newshub.databinding.FragmentHomeBinding
-import com.example.newshub.network.ApiResult
-import kotlinx.coroutines.launch
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), HomeContract.View {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private val supabaseService = SupabaseService()
+    private lateinit var presenter: HomeContract.Presenter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,8 +29,10 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        presenter = HomePresenter(AndroidSessionStore(requireContext().applicationContext))
+        presenter.attach(this)
 
-        validateDashboardSession()
+        presenter.onScreenStarted()
 
         val placeholderClick = View.OnClickListener {
             Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
@@ -49,52 +50,32 @@ class HomeFragment : Fragment() {
         binding.navElections.setOnClickListener(placeholderClick)
         binding.navAlerts.setOnClickListener(placeholderClick)
         binding.navProfile.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_profileFragment)
+            presenter.onProfileClicked()
         }
     }
 
-    private fun validateDashboardSession() {
-        val accessToken = SessionPrefs.getAccessToken(requireContext())
-        if (accessToken.isNullOrBlank()) {
-            navigateToLogin()
-            return
-        }
-
-        binding.progressDashboard.visibility = View.VISIBLE
-        lifecycleScope.launch {
-            when (val result = supabaseService.fetchAuthUser(accessToken)) {
-                is ApiResult.Success -> {
-                    binding.progressDashboard.visibility = View.GONE
-                    Toast.makeText(requireContext(), getString(R.string.home_dashboard_ready), Toast.LENGTH_SHORT).show()
-                }
-
-                is ApiResult.Failure -> {
-                    binding.progressDashboard.visibility = View.GONE
-                    if (result.error.statusCode == 401) {
-                        SessionPrefs.clear(requireContext())
-                        showToast(R.string.error_unauthorized)
-                        navigateToLogin()
-                    } else {
-                        showToast(UiErrorMapper.toMessageRes(result.error))
-                    }
-                }
-            }
-        }
+    override fun showLoading(isLoading: Boolean) {
+        binding.progressDashboard.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    private fun navigateToLogin() {
+    override fun showMessage(messageRes: Int) {
+        Toast.makeText(requireContext(), getString(messageRes), Toast.LENGTH_SHORT).show()
+    }
+
+    override fun navigateToLogin() {
         val options = NavOptions.Builder()
             .setPopUpTo(R.id.nav_graph, true)
             .build()
         findNavController().navigate(R.id.loginFragment, null, options)
     }
 
-    private fun showToast(messageRes: Int) {
-        Toast.makeText(requireContext(), getString(messageRes), Toast.LENGTH_SHORT).show()
+    override fun navigateToProfile() {
+        findNavController().navigate(R.id.action_homeFragment_to_profileFragment)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        presenter.detach()
         _binding = null
     }
 }

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/auth_background"
     android:fillViewport="true"
-    tools:context=".RegisterFragment">
+    tools:context=".feature.auth.register.RegisterFragment">
 
     <LinearLayout
         android:layout_width="match_parent"

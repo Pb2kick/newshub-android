@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/home_background"
-    tools:context=".ProfileFragment">
+    tools:context=".feature.profile.ProfileFragment">
 
     <LinearLayout
         android:id="@+id/top_bar"
