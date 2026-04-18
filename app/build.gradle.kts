@@ -23,6 +23,7 @@ android {
         val supabaseProfileTable = (project.findProperty("SUPABASE_PROFILE_TABLE") as String?) ?: "users"
         val supabaseUserIdColumn = (project.findProperty("SUPABASE_PROFILE_USER_ID_COLUMN") as String?) ?: "auth_user_id"
         val supabasePhotoColumn = (project.findProperty("SUPABASE_PROFILE_PHOTO_COLUMN") as String?) ?: "profile_photo_url"
+        val backendBaseUrl = (project.findProperty("BACKEND_BASE_URL") as String?) ?: "http://10.0.2.2:8080"
 
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
@@ -30,6 +31,7 @@ android {
         buildConfigField("String", "SUPABASE_PROFILE_TABLE", "\"$supabaseProfileTable\"")
         buildConfigField("String", "SUPABASE_PROFILE_USER_ID_COLUMN", "\"$supabaseUserIdColumn\"")
         buildConfigField("String", "SUPABASE_PROFILE_PHOTO_COLUMN", "\"$supabasePhotoColumn\"")
+        buildConfigField("String", "BACKEND_BASE_URL", "\"$backendBaseUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -60,6 +62,10 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("io.coil-kt:coil:2.7.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
+    implementation("androidx.fragment:fragment-ktx:1.8.5")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

@@ -1,9 +1,12 @@
 # NewsHub Android - API Integration
 
-This project implements the required backend API integration for:
+This project implements backend API integration for:
 - Register
 - Login
-- Dashboard (`HomeFragment`)
+- News feed (`/api/news`)
+- Article details (`/api/news/content?url=...`)
+- Elections list + candidates
+- Voting (submit + verification)
 - Profile
 - Update Profile (name + profile picture)
 - Change Password
@@ -25,6 +28,7 @@ SUPABASE_PROFILE_BUCKET=profile-pictures
 SUPABASE_PROFILE_TABLE=users
 SUPABASE_PROFILE_USER_ID_COLUMN=auth_user_id
 SUPABASE_PROFILE_PHOTO_COLUMN=profile_photo_url
+BACKEND_BASE_URL=http://10.0.2.2:8080
 ```
 
 ## API Layer Structure
@@ -38,14 +42,29 @@ SUPABASE_PROFILE_PHOTO_COLUMN=profile_photo_url
 - `app/src/main/java/com/example/newshub/network/ApiResult.kt` - unified success/failure result type
 - `app/src/main/java/com/example/newshub/network/ErrorMapper.kt` - maps HTTP/network errors
 - `app/src/main/java/com/example/newshub/SupabaseService.kt` - centralized service consumed by UI
+- `app/src/main/java/com/example/newshub/BackendService.kt` - backend API service for news/elections/voting
+- `app/src/main/java/com/example/newshub/network/BackendApi.kt` - Retrofit interface for backend endpoints
 
 ## Rubric Mapping
 - Register -> `RegisterFragment` + `SupabaseService.signUpWithPassword`
 - Login -> `LoginFragment` + `SupabaseService.signInWithPassword`
-- Dashboard -> `HomeFragment` (validates session token via `/auth/v1/user`)
+- Location-aware News Feed -> `HomeFragment` + `HomeViewModel` + `BackendService.fetchNews`
+- Article Detail -> `NewsDetailFragment` + `NewsDetailViewModel` + `BackendService.fetchArticleContent`
+- Elections -> `ElectionsFragment` + `ElectionsViewModel` + `BackendService.fetchElections`
+- Candidates -> `CandidatesFragment` + `CandidatesViewModel` + `BackendService.fetchCandidates`
+- Voting -> `VoteConfirmFragment` + `VoteConfirmViewModel` + `BackendService.castVote`
+- Vote Verification -> `VoteVerificationFragment` + `VoteVerificationViewModel` + `BackendService.verifyVote`
 - Profile -> `ProfileFragment` + `SupabaseService.fetchProfile`
 - Update Profile -> `ProfileFragment.buttonSaveName` + `SupabaseService.upsertProfile`
 - Change Password -> `ProfileFragment.buttonUpdatePassword` + `SupabaseService.updatePassword`
+
+## Web -> Mobile Feature Mapping
+- Auth (Supabase) -> `LoginFragment`, `RegisterFragment`, `SessionPrefs` / `AndroidSessionStore`
+- News browsing -> `HomeFragment` (list) and `NewsDetailFragment` (content view)
+- Elections browsing -> `ElectionsFragment` (elections) and `CandidatesFragment` (candidate cards)
+- Voting flow -> `VoteConfirmFragment` then `VoteVerificationFragment`
+- Profile/account -> `ProfileFragment` (name, picture, password)
+- Admin dashboard -> intentionally excluded from Android app
 
 ## Auth + Bearer Token
 - Access token and user id are stored in `SessionPrefs` after login.

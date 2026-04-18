@@ -1,6 +1,9 @@
 package com.example.newshub.network
 
 import java.io.IOException
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 object ErrorMapper {
 
@@ -15,7 +18,11 @@ object ErrorMapper {
 
     fun fromThrowable(throwable: Throwable): ApiFailure {
         return when (throwable) {
+            is ConnectException -> ApiFailure(ApiFailureType.Configuration, detail = throwable.message)
+            is SocketTimeoutException -> ApiFailure(ApiFailureType.Configuration, detail = throwable.message)
+            is UnknownHostException -> ApiFailure(ApiFailureType.Configuration, detail = throwable.message)
             is IOException -> ApiFailure(ApiFailureType.Network, detail = throwable.message)
+            is IllegalArgumentException -> ApiFailure(ApiFailureType.Configuration, detail = throwable.message)
             else -> ApiFailure(ApiFailureType.Unknown, detail = throwable.message)
         }
     }

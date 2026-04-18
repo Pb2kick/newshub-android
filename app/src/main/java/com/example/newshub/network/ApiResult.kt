@@ -10,6 +10,7 @@ enum class ApiFailureType {
     Unauthorized,
     Server,
     Network,
+    Configuration,
     Unknown
 }
 

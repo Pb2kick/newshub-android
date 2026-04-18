@@ -11,23 +11,33 @@
         android:id="@+id/top_bar"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:background="@color/home_card_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageButton
+            android:id="@+id/button_menu"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/home_menu"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_menu_sort_by_size"
+            app:tint="@color/home_text_secondary" />
+
         <TextView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="8dp"
             android:background="@drawable/bg_auth_logo"
             android:gravity="center"
             android:text="@string/logo_initials"
             android:textColor="@android:color/white"
-            android:textSize="10sp"
+            android:textSize="9sp"
             android:textStyle="bold" />
 
         <TextView
@@ -36,7 +46,7 @@
             android:layout_marginStart="8dp"
             android:text="@string/home_brand"
             android:textColor="@color/home_text_primary"
-            android:textSize="20sp"
+            android:textSize="26sp"
             android:textStyle="bold" />
 
         <View
@@ -45,15 +55,267 @@
             android:layout_weight="1" />
 
         <ImageButton
-            android:id="@+id/button_search"
+            android:id="@+id/button_refresh"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/home_filter_all"
+            android:contentDescription="@string/news_refresh"
             android:padding="6dp"
             android:src="@android:drawable/ic_menu_search"
             app:tint="@color/home_text_secondary" />
+
+        <ImageButton
+            android:id="@+id/button_profile_shortcut"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_home_chip_muted"
+            android:contentDescription="@string/home_nav_profile"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_menu_myplaces"
+            app:tint="@color/home_primary" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/text_location"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="16dp"
+        android:textColor="@color/home_text_secondary"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_bar"
+        tools:text="News near: Metro Manila, NCR, Philippines" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_feature"
+        android:layout_width="0dp"
+        android:layout_height="230dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="12dp"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_location"
+        app:strokeColor="@color/home_border"
+        app:strokeWidth="1dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_home_feature_placeholder">
+
+            <ImageView
+                android:id="@+id/image_feature"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/bg_home_feature_placeholder" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#7A000000" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:id="@+id/text_feature_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_auth_logo"
+                    android:paddingStart="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="3dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    tools:text="International" />
+
+                <TextView
+                    android:id="@+id/text_feature_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:maxLines="3"
+                    android:textColor="@android:color/white"
+                    android:textSize="38sp"
+                    android:textStyle="bold"
+                    tools:text="Global Summit on Climate Action Reaches Historic Agreement" />
+
+                <TextView
+                    android:id="@+id/text_feature_summary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:maxLines="2"
+                    android:textColor="#E2E8F0"
+                    android:textSize="13sp"
+                    tools:text="World leaders have unanimously agreed to new carbon reduction targets, setting a precedent for international cooperation." />
+
+                <TextView
+                    android:id="@+id/text_feature_meta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textColor="#E2E8F0"
+                    android:textSize="11sp"
+                    tools:text="Sarah Jenkins  •  2 hours ago" />
+            </LinearLayout>
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:id="@+id/section_header"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:gravity="center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/card_feature">
+
+        <View
+            android:layout_width="3dp"
+            android:layout_height="22dp"
+            android:background="@color/home_primary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/home_latest_news"
+            android:textColor="@color/home_text_primary"
+            android:textSize="40sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <HorizontalScrollView
+        android:id="@+id/chip_row"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="12dp"
+        android:scrollbars="none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/section_header">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/chip_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_home_chip_selected"
+                android:paddingStart="12dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="5dp"
+                android:text="@string/home_filter_all"
+                android:textColor="@color/home_primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/chip_international"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_home_chip_muted"
+                android:paddingStart="12dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="5dp"
+                android:text="@string/home_filter_international"
+                android:textColor="@color/home_text_secondary"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/chip_technology"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_home_chip_muted"
+                android:paddingStart="12dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="5dp"
+                android:text="@string/home_tag_technology"
+                android:textColor="@color/home_text_secondary"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/chip_economy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_home_chip_muted"
+                android:paddingStart="12dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="5dp"
+                android:text="@string/home_tag_economy"
+                android:textColor="@color/home_text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_news"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chip_row"
+        tools:listitem="@layout/item_news_article" />
+
+    <TextView
+        android:id="@+id/text_empty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="24dp"
+        android:text="@string/news_empty"
+        android:textColor="@color/home_text_secondary"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/recycler_news"
+        app:layout_constraintEnd_toEndOf="@id/recycler_news"
+        app:layout_constraintStart_toStartOf="@id/recycler_news"
+        app:layout_constraintTop_toTopOf="@id/recycler_news" />
+
+    <ProgressBar
+        android:id="@+id/progress_dashboard"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/recycler_news"
+        app:layout_constraintEnd_toEndOf="@id/recycler_news"
+        app:layout_constraintStart_toStartOf="@id/recycler_news"
+        app:layout_constraintTop_toTopOf="@id/recycler_news" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottom_nav"
@@ -64,7 +326,7 @@
         android:layout_marginBottom="10dp"
         app:cardBackgroundColor="@color/home_card_bg"
         app:cardCornerRadius="16dp"
-        app:cardElevation="3dp"
+        app:cardElevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -74,9 +336,31 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
             android:orientation="horizontal">
 
+            <LinearLayout
+                android:id="@+id/nav_home"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@android:drawable/ic_menu_view"
+                    app:tint="@color/home_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/home_nav_home"
+                    android:textColor="@color/home_primary"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/nav_news"
@@ -95,10 +379,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
+                    android:layout_marginTop="2dp"
                     android:text="@string/home_nav_news"
                     android:textColor="@color/home_muted"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -118,10 +402,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
+                    android:layout_marginTop="2dp"
                     android:text="@string/home_nav_elections"
                     android:textColor="@color/home_muted"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -141,10 +425,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
+                    android:layout_marginTop="2dp"
                     android:text="@string/home_nav_alerts"
                     android:textColor="@color/home_muted"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -164,445 +448,12 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
+                    android:layout_marginTop="2dp"
                     android:text="@string/home_nav_profile"
                     android:textColor="@color/home_muted"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:fillViewport="true"
-        android:paddingTop="12dp"
-        android:paddingBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_bar">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp">
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_feature"
-                android:layout_width="match_parent"
-                android:layout_height="240dp"
-                app:cardCornerRadius="16dp"
-                app:strokeColor="@color/home_border"
-                app:strokeWidth="1dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_home_feature_placeholder">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="#66000000" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:orientation="vertical"
-                        android:padding="14dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_auth_logo"
-                            android:paddingStart="8dp"
-                            android:paddingTop="3dp"
-                            android:paddingEnd="8dp"
-                            android:paddingBottom="3dp"
-                            android:text="@string/home_category_international"
-                            android:textColor="@android:color/white"
-                            android:textSize="10sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="@string/home_feature_title"
-                            android:textColor="@android:color/white"
-                            android:textSize="33sp"
-                            android:textStyle="bold"
-                            android:lineSpacingExtra="1dp"
-                            android:maxLines="3" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="@string/home_feature_excerpt"
-                            android:textColor="#E2E8F0"
-                            android:textSize="13sp"
-                            android:maxLines="3" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:src="@android:drawable/ic_menu_myplaces"
-                                app:tint="#CBD5E1" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:text="@string/home_feature_author"
-                                android:textColor="#E2E8F0"
-                                android:textSize="11sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="-"
-                                android:textColor="#E2E8F0"
-                                android:textSize="11sp" />
-
-                            <ImageView
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:layout_marginStart="8dp"
-                                android:src="@android:drawable/ic_lock_idle_alarm"
-                                app:tint="#CBD5E1" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:text="@string/home_feature_time"
-                                android:textColor="#E2E8F0"
-                                android:textSize="11sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <View
-                    android:layout_width="3dp"
-                    android:layout_height="22dp"
-                    android:background="@color/home_primary" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:text="@string/home_latest_news"
-                    android:textColor="@color/home_text_primary"
-                    android:textSize="30sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tab_all"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_auth_logo"
-                    android:paddingStart="10dp"
-                    android:paddingTop="4dp"
-                    android:paddingEnd="10dp"
-                    android:paddingBottom="4dp"
-                    android:text="@string/home_filter_all"
-                    android:textColor="@android:color/white"
-                    android:textSize="11sp" />
-
-                <TextView
-                    android:id="@+id/tab_politics"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="@string/home_filter_politics"
-                    android:textColor="@color/home_text_secondary"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_article_1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardBackgroundColor="@color/home_card_bg"
-                app:cardCornerRadius="12dp"
-                app:strokeColor="@color/home_border"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="8dp">
-
-                    <FrameLayout
-                        android:layout_width="94dp"
-                        android:layout_height="112dp"
-                        android:background="@drawable/bg_home_news_thumb_1">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="top|start"
-                            android:layout_margin="6dp"
-                            android:background="@color/home_card_bg"
-                            android:paddingStart="6dp"
-                            android:paddingTop="2dp"
-                            android:paddingEnd="6dp"
-                            android:paddingBottom="2dp"
-                            android:text="@string/home_tag_technology"
-                            android:textColor="@color/home_text_secondary"
-                            android:textSize="9sp"
-                            android:textStyle="bold" />
-                    </FrameLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/home_article_author_1"
-                                android:textColor="@color/home_primary"
-                                android:textSize="10sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="-"
-                                android:textColor="@color/home_muted"
-                                android:textSize="10sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="@string/home_article_time_1"
-                                android:textColor="@color/home_muted"
-                                android:textSize="10sp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/home_article_title_1"
-                            android:textColor="@color/home_text_primary"
-                            android:textSize="21sp"
-                            android:textStyle="bold"
-                            android:maxLines="2" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
-                            android:text="@string/home_article_excerpt_1"
-                            android:textColor="@color/home_text_secondary"
-                            android:textSize="12sp"
-                            android:maxLines="2" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="@string/home_article_read_1"
-                                android:textColor="@color/home_muted"
-                                android:textSize="10sp" />
-
-                            <TextView
-                                android:id="@+id/text_read_1"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/home_read_link"
-                                android:textColor="@color/home_primary"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_article_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                app:cardBackgroundColor="@color/home_card_bg"
-                app:cardCornerRadius="12dp"
-                app:strokeColor="@color/home_border"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="8dp">
-
-                    <FrameLayout
-                        android:layout_width="94dp"
-                        android:layout_height="112dp"
-                        android:background="@drawable/bg_home_news_thumb_2">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="top|start"
-                            android:layout_margin="6dp"
-                            android:background="@color/home_card_bg"
-                            android:paddingStart="6dp"
-                            android:paddingTop="2dp"
-                            android:paddingEnd="6dp"
-                            android:paddingBottom="2dp"
-                            android:text="@string/home_tag_economy"
-                            android:textColor="@color/home_text_secondary"
-                            android:textSize="9sp"
-                            android:textStyle="bold" />
-                    </FrameLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/home_article_author_2"
-                                android:textColor="@color/home_primary"
-                                android:textSize="10sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="-"
-                                android:textColor="@color/home_muted"
-                                android:textSize="10sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="@string/home_article_time_2"
-                                android:textColor="@color/home_muted"
-                                android:textSize="10sp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/home_article_title_2"
-                            android:textColor="@color/home_text_primary"
-                            android:textSize="21sp"
-                            android:textStyle="bold"
-                            android:maxLines="2" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
-                            android:text="@string/home_article_excerpt_2"
-                            android:textColor="@color/home_text_secondary"
-                            android:textSize="12sp"
-                            android:maxLines="2" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="@string/home_article_read_2"
-                                android:textColor="@color/home_muted"
-                                android:textSize="10sp" />
-
-                            <TextView
-                                android:id="@+id/text_read_2"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/home_read_link"
-                                android:textColor="@color/home_primary"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="14dp" />
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-
-    <ProgressBar
-        android:id="@+id/progress_dashboard"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-

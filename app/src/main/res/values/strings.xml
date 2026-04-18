@@ -38,6 +38,7 @@
     <string name="home_feature_author">Sarah Jenkins</string>
     <string name="home_feature_time">2 hours ago</string>
     <string name="home_latest_news">Latest News</string>
+    <string name="home_filter_international">International</string>
     <string name="home_filter_all">All</string>
     <string name="home_filter_politics">Politics</string>
     <string name="home_tag_technology">Technology</string>
@@ -54,9 +55,11 @@
     <string name="home_article_read_2">4 min read</string>
     <string name="home_read_link">Read</string>
     <string name="home_nav_news">News</string>
+    <string name="home_nav_home">Home</string>
     <string name="home_nav_elections">Elections</string>
     <string name="home_nav_alerts">Alerts</string>
     <string name="home_nav_profile">Profile</string>
+    <string name="home_menu">Open menu</string>
     <string name="home_placeholder_action">This section is visual-only for now.</string>
 
     <string name="profile_title">Profile</string>
@@ -105,6 +108,37 @@
     <string name="error_unauthorized">Your session expired. Please sign in again.</string>
     <string name="error_server">Server error. Please try again later.</string>
     <string name="error_network">No internet connection. Check your network and retry.</string>
+    <string name="error_configuration">Cannot reach service endpoint. Verify your API base URLs and try again.</string>
     <string name="error_unknown">Something went wrong. Please try again.</string>
     <string name="home_dashboard_ready">Dashboard loaded.</string>
+    <string name="common_back">Back</string>
+    <string name="news_refresh">Refresh</string>
+    <string name="news_location_format">News near: %1$s</string>
+    <string name="news_empty">No news available right now.</string>
+    <string name="news_detail_title">News Details</string>
+    <string name="news_open_source">Open Source</string>
+    <string name="elections_title">Elections</string>
+    <string name="elections_empty">No active elections found.</string>
+    <string name="candidates_title">Candidates</string>
+    <string name="candidates_empty">No candidates found for this election.</string>
+    <string name="vote_action">Vote</string>
+    <string name="vote_confirm_title">Confirm Your Vote</string>
+    <string name="vote_confirm_action">Submit Vote</string>
+    <string name="vote_verification_title">Vote Verification</string>
+    <string name="vote_election_label">Election</string>
+    <string name="vote_candidate_label">Selected Candidate</string>
+    <string name="vote_receipt_label">Receipt ID</string>
+    <string name="vote_status_label">Status</string>
+    <string name="vote_message_label">Message</string>
+    <string name="vote_done_action">Done</string>
+    <string name="news_search">Search</string>
+    <string name="article_back_to_news">Back to News</string>
+    <string name="article_updated_placeholder">Updated 1 hour ago</string>
+    <string name="article_photo_caption">Photo by Unsplash / Represents the scene described in the article</string>
+    <string name="article_photo_caption_source">Source: %1$s / Represents the scene described in the article</string>
+    <string name="article_share">Share</string>
+    <string name="article_bookmark">Bookmark</string>
+    <string name="article_comments_title">Comments (24)</string>
+    <string name="article_comments_placeholder">Join the conversation. Sign in to post comments.</string>
 </resources>
+

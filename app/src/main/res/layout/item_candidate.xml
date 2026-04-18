@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    app:cardBackgroundColor="@color/home_card_bg"
+    app:cardCornerRadius="12dp"
+    app:strokeColor="@color/home_border"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/text_candidate_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/home_text_primary"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            tools:text="Maria Santos" />
+
+        <TextView
+            android:id="@+id/text_candidate_party"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/home_primary"
+            android:textSize="13sp"
+            tools:text="People First Party" />
+
+        <TextView
+            android:id="@+id/text_candidate_platform"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/home_text_secondary"
+            android:textSize="13sp"
+            tools:text="Platform focus: public education, healthcare access, and digital governance." />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_vote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/vote_action" />
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
+

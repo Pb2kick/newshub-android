@@ -42,17 +42,20 @@ class SupabaseService {
     private val fallbackUserIdColumns = listOf("auth_user_id", "user_id", "id")
     private val fallbackPhotoColumns = listOf("profile_photo_url", "avatar_url", "photo_url", "picture")
 
-    private val authApi by lazy { ApiClient.authApi(BuildConfig.SUPABASE_URL) }
-    private val restApi by lazy { ApiClient.restApi(BuildConfig.SUPABASE_URL) }
-    private val storageApi by lazy { ApiClient.storageApi(BuildConfig.SUPABASE_URL) }
+    private val supabaseUrl = BuildConfig.SUPABASE_URL.trim().trimEnd('/')
+    private val supabaseAnonKey = BuildConfig.SUPABASE_ANON_KEY.trim()
+
+    private val authApi by lazy { ApiClient.authApi(supabaseUrl) }
+    private val restApi by lazy { ApiClient.restApi(supabaseUrl) }
+    private val storageApi by lazy { ApiClient.storageApi(supabaseUrl) }
 
     val isConfigured: Boolean
-        get() = BuildConfig.SUPABASE_URL.isNotBlank() && BuildConfig.SUPABASE_ANON_KEY.isNotBlank()
+        get() = supabaseUrl.isNotBlank() && supabaseAnonKey.isNotBlank()
 
     suspend fun signInWithPassword(email: String, password: String): ApiResult<AuthSession> = withContext(Dispatchers.IO) {
         runApiCall {
             val response = authApi.signInWithPassword(
-                apiKey = BuildConfig.SUPABASE_ANON_KEY,
+                apiKey = supabaseAnonKey,
                 request = AuthTokenRequest(email = email, password = password)
             )
 
@@ -86,7 +89,7 @@ class SupabaseService {
                 "full_name" to fullName
             )
             val response = authApi.signUpWithPassword(
-                apiKey = BuildConfig.SUPABASE_ANON_KEY,
+                apiKey = supabaseAnonKey,
                 request = SignUpRequest(email = email, password = password, data = signUpData)
             )
 
@@ -156,8 +159,8 @@ class SupabaseService {
             patchPayload[photoColumn] = avatarUrl
 
             val patchResponse = restApi.patchRows(
-                url = "${BuildConfig.SUPABASE_URL}/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}?$userIdColumn=eq.$encodedUserId",
-                apiKey = BuildConfig.SUPABASE_ANON_KEY,
+                url = "$supabaseUrl/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}?$userIdColumn=eq.$encodedUserId",
+                apiKey = supabaseAnonKey,
                 authorization = bearer(accessToken),
                 body = patchPayload
             )
@@ -180,8 +183,8 @@ class SupabaseService {
             insertPayload[photoColumn] = avatarUrl
 
             val insertResponse = restApi.insertRow(
-                url = "${BuildConfig.SUPABASE_URL}/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}",
-                apiKey = BuildConfig.SUPABASE_ANON_KEY,
+                url = "$supabaseUrl/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}",
+                apiKey = supabaseAnonKey,
                 authorization = bearer(accessToken),
                 body = insertPayload
             )
@@ -204,11 +207,11 @@ class SupabaseService {
             val fileExtension = if (mimeType.contains("png")) "png" else "jpg"
             val objectPath = "$userId/avatar.$fileExtension"
             val encodedPath = objectPath.split("/").joinToString("/") { urlEncode(it) }
-            val uploadUrl = "${BuildConfig.SUPABASE_URL}/storage/v1/object/${BuildConfig.SUPABASE_PROFILE_BUCKET}/$encodedPath"
+            val uploadUrl = "$supabaseUrl/storage/v1/object/${BuildConfig.SUPABASE_PROFILE_BUCKET}/$encodedPath"
 
             val uploadResponse = storageApi.uploadObject(
                 url = uploadUrl,
-                apiKey = BuildConfig.SUPABASE_ANON_KEY,
+                apiKey = supabaseAnonKey,
                 authorization = bearer(accessToken),
                 body = bytes.toRequestBody(mimeType.toMediaType())
             )
@@ -217,14 +220,14 @@ class SupabaseService {
                 return@runApiCall ApiResult.Failure(mapFailure(uploadResponse))
             }
 
-            ApiResult.Success("${BuildConfig.SUPABASE_URL}/storage/v1/object/public/${BuildConfig.SUPABASE_PROFILE_BUCKET}/$objectPath")
+            ApiResult.Success("$supabaseUrl/storage/v1/object/public/${BuildConfig.SUPABASE_PROFILE_BUCKET}/$objectPath")
         }
     }
 
     suspend fun updatePassword(newPassword: String, accessToken: String): ApiResult<Unit> = withContext(Dispatchers.IO) {
         runApiCall {
             val response = authApi.updatePassword(
-                apiKey = BuildConfig.SUPABASE_ANON_KEY,
+                apiKey = supabaseAnonKey,
                 authorization = "Bearer $accessToken",
                 request = ChangePasswordRequest(password = newPassword)
             )
@@ -240,7 +243,7 @@ class SupabaseService {
     suspend fun fetchAuthUser(accessToken: String): ApiResult<AuthUserRecord> = withContext(Dispatchers.IO) {
         runApiCall {
             val response = authApi.getCurrentUser(
-                apiKey = BuildConfig.SUPABASE_ANON_KEY,
+                apiKey = supabaseAnonKey,
                 authorization = "Bearer $accessToken"
             )
 
@@ -280,7 +283,7 @@ class SupabaseService {
 
     private fun bearer(accessToken: String?): String {
         return if (accessToken.isNullOrBlank()) {
-            "Bearer ${BuildConfig.SUPABASE_ANON_KEY}"
+            "Bearer $supabaseAnonKey"
         } else {
             "Bearer $accessToken"
         }
@@ -316,12 +319,12 @@ class SupabaseService {
             addAll(photoColumns)
         }.joinToString(",")
 
-        val url = "${BuildConfig.SUPABASE_URL}/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}" +
+        val url = "$supabaseUrl/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}" +
             "?$userIdColumn=eq.$encodedUserId&select=$selectColumns&limit=1"
 
         val response = restApi.fetchRows(
             url = url,
-            apiKey = BuildConfig.SUPABASE_ANON_KEY,
+            apiKey = supabaseAnonKey,
             authorization = bearer(accessToken)
         )
 

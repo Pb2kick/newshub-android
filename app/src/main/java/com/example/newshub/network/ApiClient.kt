@@ -31,6 +31,10 @@ object ApiClient {
         return retrofit(baseUrl).create(SupabaseStorageApi::class.java)
     }
 
+    fun backendApi(baseUrl: String): BackendApi {
+        return retrofit(baseUrl).create(BackendApi::class.java)
+    }
+
     private fun retrofit(baseUrl: String): Retrofit {
         return Retrofit.Builder()
             .baseUrl(withTrailingSlash(baseUrl))

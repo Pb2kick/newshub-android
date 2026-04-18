@@ -48,7 +48,60 @@
         <action
             android:id="@+id/action_homeFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_newsDetailFragment"
+            app:destination="@id/newsDetailFragment" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_electionsFragment"
+            app:destination="@id/electionsFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/newsDetailFragment"
+        android:name="com.example.newshub.feature.news.NewsDetailFragment"
+        android:label="@string/news_detail_title"
+        tools:layout="@layout/fragment_news_detail" />
+
+    <fragment
+        android:id="@+id/electionsFragment"
+        android:name="com.example.newshub.feature.elections.ElectionsFragment"
+        android:label="@string/elections_title"
+        tools:layout="@layout/fragment_elections">
+
+        <action
+            android:id="@+id/action_electionsFragment_to_candidatesFragment"
+            app:destination="@id/candidatesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/candidatesFragment"
+        android:name="com.example.newshub.feature.elections.CandidatesFragment"
+        android:label="@string/candidates_title"
+        tools:layout="@layout/fragment_candidates">
+
+        <action
+            android:id="@+id/action_candidatesFragment_to_voteConfirmFragment"
+            app:destination="@id/voteConfirmFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/voteConfirmFragment"
+        android:name="com.example.newshub.feature.voting.VoteConfirmFragment"
+        android:label="@string/vote_confirm_title"
+        tools:layout="@layout/fragment_vote_confirm">
+
+        <action
+            android:id="@+id/action_voteConfirmFragment_to_voteVerificationFragment"
+            app:destination="@id/voteVerificationFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/voteVerificationFragment"
+        android:name="com.example.newshub.feature.voting.VoteVerificationFragment"
+        android:label="@string/vote_verification_title"
+        tools:layout="@layout/fragment_vote_verification" />
 
     <fragment
         android:id="@+id/profileFragment"
