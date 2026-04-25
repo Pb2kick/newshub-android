@@ -19,9 +19,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageButton
+            android:id="@+id/button_menu"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/home_menu"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_menu_sort_by_size"
+            app:tint="@color/home_text_secondary" />
+
         <TextView
             android:layout_width="22dp"
             android:layout_height="22dp"
+            android:layout_marginStart="8dp"
             android:background="@drawable/bg_auth_logo"
             android:gravity="center"
             android:text="@string/logo_initials"
@@ -44,24 +55,23 @@
             android:layout_weight="1" />
 
         <ImageButton
-            android:id="@+id/button_search"
+            android:id="@+id/button_refresh"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/news_search"
+            android:contentDescription="@string/news_refresh"
             android:padding="6dp"
             android:src="@android:drawable/ic_menu_search"
             app:tint="@color/home_text_secondary" />
 
-        <ImageView
-            android:id="@+id/image_top_profile"
+        <ImageButton
+            android:id="@+id/button_profile_shortcut"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginStart="6dp"
             android:background="@drawable/bg_home_chip_muted"
             android:contentDescription="@string/home_nav_profile"
-            android:padding="4dp"
-            android:scaleType="centerCrop"
+            android:padding="6dp"
             android:src="@android:drawable/ic_menu_myplaces"
             app:tint="@color/home_primary" />
     </LinearLayout>
@@ -311,29 +321,6 @@
             android:orientation="horizontal">
 
             <LinearLayout
-                android:id="@+id/nav_home"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@android:drawable/ic_menu_view"
-                    app:tint="@color/home_muted" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/home_nav_home"
-                    android:textColor="@color/home_muted"
-                    android:textSize="10sp" />
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/nav_news"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -376,29 +363,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="@string/home_nav_elections"
-                    android:textColor="@color/home_muted"
-                    android:textSize="10sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/nav_alerts"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@android:drawable/ic_dialog_info"
-                    app:tint="@color/home_muted" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/home_nav_alerts"
                     android:textColor="@color/home_muted"
                     android:textSize="10sp" />
             </LinearLayout>

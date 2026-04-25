@@ -48,6 +48,25 @@ class CandidatesFragment : Fragment() {
         binding.buttonBack.setOnClickListener {
             findNavController().popBackStack()
         }
+        binding.buttonMenu.setOnClickListener {
+            Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
+        }
+        binding.buttonRefresh.setOnClickListener {
+            if (electionId.isNotBlank()) {
+                viewModel.load(electionId)
+            }
+        }
+        binding.buttonProfileShortcut.setOnClickListener {
+            findNavController().navigate(R.id.profileFragment)
+        }
+
+        binding.navNews.setOnClickListener {
+            findNavController().navigate(R.id.homeFragment)
+        }
+        binding.navElections.setOnClickListener { }
+        binding.navProfile.setOnClickListener {
+            findNavController().navigate(R.id.profileFragment)
+        }
 
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
             binding.progressCandidates.visibility = if (state.isLoading) View.VISIBLE else View.GONE

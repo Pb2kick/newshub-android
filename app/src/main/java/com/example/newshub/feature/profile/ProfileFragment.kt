@@ -63,10 +63,15 @@ class ProfileFragment : Fragment(), ProfileContract.View {
             showMessage(R.string.home_placeholder_action)
         }
 
-        binding.textBackHome.setOnClickListener { presenter.onBackClicked() }
+        binding.buttonMenu.setOnClickListener(placeholderClick)
+        binding.buttonRefresh.setOnClickListener { presenter.onScreenStarted() }
+        binding.buttonProfileShortcut.setOnClickListener { }
+
         binding.navNews.setOnClickListener { presenter.onBackClicked() }
-        binding.navElections.setOnClickListener(placeholderClick)
-        binding.navAlerts.setOnClickListener(placeholderClick)
+        binding.navElections.setOnClickListener {
+            findNavController().navigate(R.id.electionsFragment)
+        }
+        binding.navProfile.setOnClickListener { }
         binding.buttonLogout.setOnClickListener { presenter.onLogoutClicked() }
         binding.textDevRegister.setOnClickListener(placeholderClick)
         binding.textDevSignin.setOnClickListener(placeholderClick)

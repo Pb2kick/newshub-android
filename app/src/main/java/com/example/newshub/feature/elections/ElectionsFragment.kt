@@ -39,8 +39,14 @@ class ElectionsFragment : Fragment() {
         }
         binding.recyclerElections.adapter = adapter
 
-        binding.buttonBackHome.setOnClickListener {
-            findNavController().popBackStack()
+        binding.buttonMenu.setOnClickListener {
+            Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
+        }
+        binding.buttonRefresh.setOnClickListener {
+            viewModel.load()
+        }
+        binding.buttonProfileShortcut.setOnClickListener {
+            findNavController().navigate(R.id.profileFragment)
         }
 
         binding.navNews.setOnClickListener {

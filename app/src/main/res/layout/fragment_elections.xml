@@ -9,31 +9,86 @@
     <LinearLayout
         android:id="@+id/top_bar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/home_card_bg"
+        android:layout_height="56dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_back_home"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/common_back" />
+        <ImageButton
+            android:id="@+id/button_menu"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/home_menu"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_menu_sort_by_size"
+            app:tint="@color/home_text_secondary" />
+
+        <TextView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_auth_logo"
+            android:gravity="center"
+            android:text="@string/logo_initials"
+            android:textColor="@android:color/white"
+            android:textSize="9sp"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@string/elections_title"
+            android:text="@string/home_brand"
             android:textColor="@color/home_text_primary"
-            android:textSize="20sp"
+            android:textSize="26sp"
             android:textStyle="bold" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/button_refresh"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/news_refresh"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_menu_search"
+            app:tint="@color/home_text_secondary" />
+
+        <ImageButton
+            android:id="@+id/button_profile_shortcut"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_home_chip_muted"
+            android:contentDescription="@string/home_nav_profile"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_menu_myplaces"
+            app:tint="@color/home_primary" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/text_screen_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/elections_title"
+        android:textColor="@color/home_text_primary"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_bar" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_elections"
@@ -44,7 +99,7 @@
         app:layout_constraintBottom_toTopOf="@id/bottom_nav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_bar"
+        app:layout_constraintTop_toBottomOf="@id/text_screen_title"
         tools:listitem="@layout/item_election" />
 
     <TextView

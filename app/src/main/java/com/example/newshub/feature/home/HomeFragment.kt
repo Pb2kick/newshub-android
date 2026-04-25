@@ -106,10 +106,6 @@ class HomeFragment : Fragment() {
             Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
         }
         binding.navNews.setOnClickListener { }
-        binding.navHome.setOnClickListener { }
-        binding.navAlerts.setOnClickListener {
-            Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
-        }
         binding.navElections.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_electionsFragment)
         }

@@ -44,6 +44,23 @@ class VoteConfirmFragment : Fragment() {
         binding.buttonBack.setOnClickListener {
             findNavController().popBackStack()
         }
+        binding.buttonMenu.setOnClickListener {
+            Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
+        }
+        binding.buttonRefresh.setOnClickListener {
+            Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
+        }
+        binding.buttonProfileShortcut.setOnClickListener {
+            findNavController().navigate(R.id.profileFragment)
+        }
+
+        binding.navNews.setOnClickListener {
+            findNavController().navigate(R.id.homeFragment)
+        }
+        binding.navElections.setOnClickListener { }
+        binding.navProfile.setOnClickListener {
+            findNavController().navigate(R.id.profileFragment)
+        }
 
         binding.buttonConfirmVote.setOnClickListener {
             viewModel.submitVote(electionId = electionId, candidateId = candidateId)
