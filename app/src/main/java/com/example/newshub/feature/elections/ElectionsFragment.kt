@@ -1,6 +1,8 @@
 package com.example.newshub.feature.elections
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,15 +42,36 @@ class ElectionsFragment : Fragment() {
         }
         binding.recyclerElections.adapter = adapter
 
-        binding.buttonMenu.setOnClickListener {
-            Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
+        binding.topBarInclude.buttonSearch.setOnClickListener {
+            findNavController().navigate(R.id.searchFragment)
         }
-        binding.buttonRefresh.setOnClickListener {
+        binding.topBarInclude.buttonLocation.setOnClickListener {
             viewModel.load()
         }
-        binding.buttonProfileShortcut.setOnClickListener {
-            findNavController().navigate(R.id.profileFragment)
+        binding.buttonFilter.setOnClickListener {
+            binding.chipGroupScope.check(R.id.chip_filter_all)
+            viewModel.setScopeFilter(ElectionScopeFilter.ALL)
+            binding.inputSearchElections.text?.clear()
         }
+
+        binding.chipGroupScope.setOnCheckedStateChangeListener { _, checkedIds ->
+            val checkedId = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
+            val filter = when (checkedId) {
+                R.id.chip_filter_national -> ElectionScopeFilter.NATIONAL
+                R.id.chip_filter_state -> ElectionScopeFilter.STATE
+                R.id.chip_filter_local -> ElectionScopeFilter.LOCAL
+                else -> ElectionScopeFilter.ALL
+            }
+            viewModel.setScopeFilter(filter)
+        }
+
+        binding.inputSearchElections.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.setSearchQuery(s?.toString().orEmpty())
+            }
+        })
 
         BottomNavHelper.wire(
             fragment = this,
@@ -62,7 +85,7 @@ class ElectionsFragment : Fragment() {
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
             binding.progressElections.visibility = if (state.isLoading) View.VISIBLE else View.GONE
             adapter.submitList(state.items)
-            binding.textEmpty.visibility = if (state.items.isEmpty()) View.VISIBLE else View.GONE
+            binding.textEmpty.visibility = if (state.items.isEmpty() && !state.isLoading) View.VISIBLE else View.GONE
             state.emptyMessageRes?.let { binding.textEmpty.setText(it) }
             state.messageRes?.let {
                 Toast.makeText(requireContext(), getString(it), Toast.LENGTH_SHORT).show()
@@ -78,4 +101,3 @@ class ElectionsFragment : Fragment() {
         _binding = null
     }
 }
-

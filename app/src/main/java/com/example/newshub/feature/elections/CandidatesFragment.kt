@@ -1,6 +1,8 @@
 package com.example.newshub.feature.elections
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +21,8 @@ class CandidatesFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: CandidatesViewModel by viewModels()
     private lateinit var adapter: CandidatesAdapter
+    private var electionId: String = ""
+    private var electionName: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,9 +36,13 @@ class CandidatesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val electionId = arguments?.getString("electionId").orEmpty()
-        val electionName = arguments?.getString("electionName").orEmpty()
-        binding.textTitle.text = if (electionName.isBlank()) getString(R.string.candidates_title) else electionName
+        electionId = arguments?.getString("electionId").orEmpty()
+        electionName = arguments?.getString("electionName").orEmpty()
+        binding.textTitle.text = if (electionName.isBlank()) {
+            getString(R.string.candidates_title)
+        } else {
+            "$electionName Candidates"
+        }
 
         adapter = CandidatesAdapter { candidate ->
             findNavController().navigate(
@@ -44,20 +52,36 @@ class CandidatesFragment : Fragment() {
         }
         binding.recyclerCandidates.adapter = adapter
 
-        binding.buttonBack.setOnClickListener {
-            findNavController().popBackStack()
+        binding.buttonBack.setOnClickListener { findNavController().popBackStack() }
+        binding.topBarInclude.buttonSearch.setOnClickListener {
+            findNavController().navigate(R.id.searchFragment)
         }
-        binding.buttonMenu.setOnClickListener {
-            Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
+        binding.topBarInclude.buttonLocation.setOnClickListener {
+            if (electionId.isNotBlank()) viewModel.load(electionId)
         }
-        binding.buttonRefresh.setOnClickListener {
-            if (electionId.isNotBlank()) {
-                viewModel.load(electionId)
+        binding.buttonVoteNow.setOnClickListener {
+            val first = viewModel.uiState.value?.items?.firstOrNull()
+            if (first != null) {
+                findNavController().navigate(
+                    R.id.action_candidatesFragment_to_candidateProfileFragment,
+                    first.toProfileBundle(electionName)
+                )
+            } else {
+                Toast.makeText(requireContext(), R.string.candidates_empty, Toast.LENGTH_SHORT).show()
             }
         }
-        binding.buttonProfileShortcut.setOnClickListener {
-            findNavController().navigate(R.id.profileFragment)
+        binding.buttonSort.setOnClickListener {
+            val sorted = viewModel.uiState.value?.items?.sortedBy { it.fullName }.orEmpty()
+            adapter.submitList(sorted)
         }
+
+        binding.inputSearchCandidates.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.setSearchQuery(s?.toString().orEmpty())
+            }
+        })
 
         BottomNavHelper.wire(
             fragment = this,
@@ -88,4 +112,3 @@ class CandidatesFragment : Fragment() {
         _binding = null
     }
 }
-

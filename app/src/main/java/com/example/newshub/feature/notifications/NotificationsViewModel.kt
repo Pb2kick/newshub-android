@@ -13,7 +13,10 @@ import kotlinx.coroutines.launch
 
 data class NotificationsUiState(
     val isLoading: Boolean = false,
+    val allItems: List<NotificationItem> = emptyList(),
     val items: List<NotificationItem> = emptyList(),
+    val unreadOnly: Boolean = false,
+    val unreadCount: Int = 0,
     val messageRes: Int? = null
 )
 
@@ -37,9 +40,14 @@ class NotificationsViewModel(
         viewModelScope.launch {
             when (val result = supabaseService.fetchNotifications(userId, token)) {
                 is ApiResult.Success -> {
-                    _uiState.value = NotificationsUiState(
+                    val current = _uiState.value ?: NotificationsUiState()
+                    val unreadCount = result.data.count { !it.isRead }
+                    val visible = applyUnreadFilter(result.data, current.unreadOnly)
+                    _uiState.value = current.copy(
                         isLoading = false,
-                        items = result.data
+                        allItems = result.data,
+                        items = visible,
+                        unreadCount = unreadCount
                     )
                 }
                 is ApiResult.Failure -> {
@@ -50,6 +58,14 @@ class NotificationsViewModel(
                 }
             }
         }
+    }
+
+    fun setUnreadOnly(unreadOnly: Boolean) {
+        val current = _uiState.value ?: return
+        _uiState.value = current.copy(
+            unreadOnly = unreadOnly,
+            items = applyUnreadFilter(current.allItems, unreadOnly)
+        )
     }
 
     fun markAllRead() {
@@ -75,6 +91,13 @@ class NotificationsViewModel(
 
     fun consumeMessage() {
         _uiState.value = _uiState.value?.copy(messageRes = null)
+    }
+
+    private fun applyUnreadFilter(
+        items: List<NotificationItem>,
+        unreadOnly: Boolean
+    ): List<NotificationItem> {
+        return if (unreadOnly) items.filter { !it.isRead } else items
     }
 
     private fun showError(result: ApiResult.Failure) {

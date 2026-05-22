@@ -8,43 +8,28 @@
     tools:context=".feature.profile.ProfileFragment">
 
     <LinearLayout
-        android:id="@+id/top_bar"
+        android:id="@+id/profile_header_row"
         android:layout_width="0dp"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="12dp"
+        android:paddingStart="8dp"
+        android:paddingTop="8dp"
         android:paddingEnd="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-            android:id="@+id/button_menu"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/home_menu"
-            android:padding="6dp"
-            android:src="@android:drawable/ic_menu_sort_by_size"
-            app:tint="@color/home_text_secondary" />
-
-        <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/home_brand"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_newshub_logo" />
-
-        <TextView
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_back_home"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/home_brand"
-            android:textColor="@color/home_text_primary"
-            android:textSize="26sp"
-            android:textStyle="bold" />
+            android:text="@string/profile_back_home"
+            app:icon="@drawable/ic_back_chevron"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconTint="@color/home_text_secondary" />
 
         <View
             android:layout_width="0dp"
@@ -52,25 +37,13 @@
             android:layout_weight="1" />
 
         <ImageButton
-            android:id="@+id/button_refresh"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:id="@+id/button_logout"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/news_refresh"
+            android:contentDescription="@string/profile_logout"
             android:padding="6dp"
-            android:src="@android:drawable/ic_menu_search"
-            app:tint="@color/home_text_secondary" />
-
-        <ImageButton
-            android:id="@+id/button_profile_shortcut"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginStart="6dp"
-            android:background="@drawable/bg_home_chip_muted"
-            android:contentDescription="@string/home_nav_profile"
-            android:padding="6dp"
-            android:src="@android:drawable/ic_menu_myplaces"
-            app:tint="@color/home_primary" />
+            android:src="@drawable/ic_logout" />
     </LinearLayout>
 
     <LinearLayout
@@ -81,33 +54,18 @@
         android:layout_marginTop="2dp"
         android:layout_marginEnd="16dp"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_bar">
+        app:layout_constraintTop_toBottomOf="@id/profile_header_row">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/profile_title"
+            android:text="@string/profile_your_title"
             android:textColor="@color/home_text_primary"
             android:textSize="28sp"
             android:textStyle="bold" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:id="@+id/button_logout"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/profile_logout"
-            android:padding="6dp"
-            android:src="@android:drawable/ic_lock_power_off"
-            app:tint="#EF4444" />
     </LinearLayout>
 
     <include
@@ -146,9 +104,11 @@
                 android:textSize="14sp" />
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_dev_mode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
+                android:visibility="gone"
                 app:cardBackgroundColor="@color/profile_banner_bg"
                 app:cardCornerRadius="12dp"
                 app:strokeColor="@color/profile_banner_stroke"
@@ -300,7 +260,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/profile_account_info"
+                        android:text="@string/profile_account_details"
                         android:textColor="@color/home_text_primary"
                         android:textSize="24sp"
                         android:textStyle="bold" />
@@ -485,7 +445,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/profile_change_password"
+                        android:text="@string/profile_security"
                         android:textColor="@color/home_text_primary"
                         android:textSize="24sp"
                         android:textStyle="bold" />

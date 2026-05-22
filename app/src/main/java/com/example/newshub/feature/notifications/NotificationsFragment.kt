@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.newshub.R
 import com.example.newshub.core.session.AndroidSessionStore
 import com.example.newshub.databinding.FragmentNotificationsBinding
+import com.example.newshub.ui.BottomNavHelper
 
 class NotificationsFragment : Fragment() {
 
@@ -66,18 +68,33 @@ class NotificationsFragment : Fragment() {
         }).attachToRecyclerView(binding.recyclerNotifications)
 
         binding.buttonBack.setOnClickListener { findNavController().popBackStack() }
-        binding.toolbarNotifications.setOnMenuItemClickListener { item ->
-            if (item.itemId == R.id.action_mark_all_read) {
-                viewModel.markAllRead()
-                true
-            } else {
-                false
-            }
-        }
+        binding.buttonMarkAllRead.setOnClickListener { viewModel.markAllRead() }
+        binding.buttonFilterAll.setOnClickListener { selectFilter(unreadOnly = false) }
+        binding.buttonFilterUnread.setOnClickListener { selectFilter(unreadOnly = true) }
+
+        BottomNavHelper.wire(
+            fragment = this,
+            navHome = binding.bottomNavBar.navHome,
+            navElections = binding.bottomNavBar.navElections,
+            navAlerts = binding.bottomNavBar.navAlerts,
+            navProfile = binding.bottomNavBar.navProfile
+        )
+        binding.bottomNavBar.navAlerts.setOnClickListener { }
 
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
             binding.progressNotifications.visibility = if (state.isLoading) View.VISIBLE else View.GONE
             adapter.submitList(state.items)
+            binding.textEmpty.visibility = if (state.items.isEmpty() && !state.isLoading) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+            if (state.unreadCount > 0) {
+                binding.badgeUnreadCount.visibility = View.VISIBLE
+                binding.badgeUnreadCount.text = if (state.unreadCount > 9) "9+" else state.unreadCount.toString()
+            } else {
+                binding.badgeUnreadCount.visibility = View.GONE
+            }
             state.messageRes?.let {
                 Toast.makeText(requireContext(), getString(it), Toast.LENGTH_SHORT).show()
                 viewModel.consumeMessage()
@@ -85,6 +102,30 @@ class NotificationsFragment : Fragment() {
         }
 
         viewModel.refresh()
+    }
+
+    private fun selectFilter(unreadOnly: Boolean) {
+        viewModel.setUnreadOnly(unreadOnly)
+        val context = requireContext()
+        if (unreadOnly) {
+            binding.buttonFilterAll.backgroundTintList =
+                ContextCompat.getColorStateList(context, android.R.color.transparent)
+            binding.buttonFilterAll.setTextColor(ContextCompat.getColor(context, R.color.home_text_secondary))
+            binding.buttonFilterAll.setTypeface(null, android.graphics.Typeface.NORMAL)
+            binding.buttonFilterUnread.backgroundTintList =
+                ContextCompat.getColorStateList(context, R.color.home_card_bg)
+            binding.buttonFilterUnread.setTextColor(ContextCompat.getColor(context, R.color.home_text_primary))
+            binding.buttonFilterUnread.setTypeface(null, android.graphics.Typeface.BOLD)
+        } else {
+            binding.buttonFilterUnread.backgroundTintList =
+                ContextCompat.getColorStateList(context, android.R.color.transparent)
+            binding.buttonFilterUnread.setTextColor(ContextCompat.getColor(context, R.color.home_text_secondary))
+            binding.buttonFilterUnread.setTypeface(null, android.graphics.Typeface.NORMAL)
+            binding.buttonFilterAll.backgroundTintList =
+                ContextCompat.getColorStateList(context, R.color.home_card_bg)
+            binding.buttonFilterAll.setTextColor(ContextCompat.getColor(context, R.color.home_text_primary))
+            binding.buttonFilterAll.setTypeface(null, android.graphics.Typeface.BOLD)
+        }
     }
 
     override fun onResume() {

@@ -7,112 +7,14 @@
     android:background="@color/home_background"
     tools:context=".feature.home.HomeFragment">
 
-    <LinearLayout
-        android:id="@+id/top_bar"
+    <include
+        android:id="@+id/top_bar_include"
+        layout="@layout/partial_top_bar"
         android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageButton
-            android:id="@+id/button_menu"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/home_menu"
-            android:padding="6dp"
-            android:src="@android:drawable/ic_menu_sort_by_size"
-            app:tint="@color/home_text_secondary" />
-
-        <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/home_brand"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_newshub_logo" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/home_brand"
-            android:textColor="@color/home_text_primary"
-            android:textSize="26sp"
-            android:textStyle="bold" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:id="@+id/button_search"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/news_search"
-            android:padding="6dp"
-            android:src="@android:drawable/ic_menu_search"
-            app:tint="@color/home_text_secondary" />
-
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp">
-
-            <ImageButton
-                android:id="@+id/button_notifications"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/notifications_title"
-                android:padding="6dp"
-                android:src="@android:drawable/ic_popup_reminder"
-                app:tint="@color/home_text_secondary" />
-
-            <TextView
-                android:id="@+id/badge_notifications"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_gravity="top|end"
-                android:background="@drawable/bg_auth_logo"
-                android:gravity="center"
-                android:textColor="@android:color/white"
-                android:textSize="9sp"
-                android:textStyle="bold"
-                android:visibility="gone"
-                tools:text="3"
-                tools:visibility="visible" />
-        </FrameLayout>
-
-        <ImageButton
-            android:id="@+id/button_refresh"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginStart="6dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/news_refresh"
-            android:padding="6dp"
-            android:src="@android:drawable/ic_menu_rotate"
-            app:tint="@color/home_text_secondary" />
-
-        <ImageButton
-            android:id="@+id/button_profile_shortcut"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginStart="6dp"
-            android:background="@drawable/bg_home_chip_muted"
-            android:contentDescription="@string/home_nav_profile"
-            android:padding="6dp"
-            android:src="@android:drawable/ic_menu_myplaces"
-            app:tint="@color/home_primary" />
-    </LinearLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/text_location"
@@ -125,7 +27,7 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_bar"
+        app:layout_constraintTop_toBottomOf="@id/top_bar_include"
         tools:text="News near: Metro Manila, NCR, Philippines" />
 
     <com.google.android.material.card.MaterialCardView

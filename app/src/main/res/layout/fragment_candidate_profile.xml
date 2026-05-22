@@ -7,25 +7,35 @@
     android:background="@color/home_background"
     tools:context=".feature.elections.CandidateProfileFragment">
 
-    <ImageButton
-        android:id="@+id/button_back"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/common_back"
-        android:src="@android:drawable/ic_menu_revert"
+    <include
+        android:id="@+id/top_bar_include"
+        layout="@layout/partial_top_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/home_text_secondary" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_back"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/candidate_back_candidates"
+        app:icon="@drawable/ic_back_chevron"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconTint="@color/home_text_secondary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_bar_include" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll_candidate"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:padding="16dp"
+        android:paddingBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,95 +44,278 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="12dp">
 
-            <ImageView
-                android:id="@+id/image_photo"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:scaleType="centerCrop"
-                tools:src="@drawable/bg_home_chip_muted" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/home_card_bg"
+                app:cardCornerRadius="14dp"
+                app:strokeColor="@color/home_border"
+                app:strokeWidth="1dp">
 
-            <TextView
-                android:id="@+id/text_candidate_name"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="280dp">
+
+                        <ImageView
+                            android:id="@+id/image_photo"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            tools:src="@drawable/bg_home_feature_placeholder" />
+
+                        <TextView
+                            android:id="@+id/text_party"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start|top"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginTop="12dp"
+                            android:background="@drawable/bg_home_chip_muted"
+                            android:paddingStart="10dp"
+                            android:paddingTop="4dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="4dp"
+                            android:textColor="@color/home_text_primary"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            tools:text="Progressive Party" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/text_candidate_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:gravity="center"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:textColor="@color/home_text_primary"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        tools:text="Elena Rodriguez" />
+
+                    <TextView
+                        android:id="@+id/text_position"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center"
+                        android:textColor="@color/home_text_secondary"
+                        android:textSize="14sp"
+                        tools:text="President" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_vote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="10dp"
+                        android:text="@string/vote_for_candidate"
+                        android:textAllCaps="false"
+                        app:backgroundTint="@color/home_primary"
+                        app:cornerRadius="12dp"
+                        app:icon="@drawable/ic_check_circle"
+                        app:iconGravity="textStart"
+                        app:iconTint="@android:color/white" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="14dp"
+                        android:gravity="center"
+                        android:text="@string/candidate_verified_footer"
+                        android:textColor="@color/home_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:gravity="center"
-                android:textColor="@color/home_text_primary"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                tools:text="Alex Rivera" />
+                app:cardBackgroundColor="@color/home_card_bg"
+                app:cardCornerRadius="14dp"
+                app:strokeColor="@color/home_border"
+                app:strokeWidth="1dp">
 
-            <TextView
-                android:id="@+id/text_position"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center"
-                android:textColor="@color/home_text_secondary"
-                android:textSize="14sp"
-                tools:text="Mayor" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <TextView
-                android:id="@+id/text_party"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_home_chip_selected"
-                android:paddingStart="10dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="10dp"
-                android:paddingBottom="4dp"
-                android:textColor="@color/home_primary"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                tools:text="Independent" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/candidate_quick_stats"
+                        android:textColor="@color/home_text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-            <TextView
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/candidate_stat_age"
+                            android:textColor="@color/home_text_secondary" />
+
+                        <TextView
+                            android:id="@+id/text_stat_age"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/home_text_primary"
+                            android:textStyle="bold"
+                            tools:text="45" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/candidate_stat_education"
+                            android:textColor="@color/home_text_secondary" />
+
+                        <TextView
+                            android:id="@+id/text_stat_education"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/home_text_primary"
+                            android:textStyle="bold"
+                            tools:text="J.D. Harvard Law" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/candidate_stat_years"
+                            android:textColor="@color/home_text_secondary" />
+
+                        <TextView
+                            android:id="@+id/text_stat_years"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/home_text_primary"
+                            android:textStyle="bold"
+                            tools:text="12" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/candidate_stat_residence"
+                            android:textColor="@color/home_text_secondary" />
+
+                        <TextView
+                            android:id="@+id/text_stat_residence"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/home_text_primary"
+                            android:textStyle="bold"
+                            tools:text="Springfield, IL" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/candidate_bio_label"
-                android:textColor="@color/home_text_primary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="22dp"
+                    android:background="@color/home_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/candidate_about_title"
+                    android:textColor="@color/home_text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/text_bio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:lineSpacingExtra="3dp"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="4dp"
                 android:textColor="@color/home_text_secondary"
                 android:textSize="14sp"
                 tools:text="Bio text" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/candidate_education_label"
-                android:textColor="@color/home_text_primary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="22dp"
+                    android:background="@color/home_success_text" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/candidate_endorsements"
+                    android:textColor="@color/home_text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/text_education"
+                android:id="@+id/text_endorsements"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="6dp"
                 android:textColor="@color/home_text_secondary"
-                android:textSize="14sp"
-                tools:text="State University" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_vote"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="@string/vote_for_candidate" />
+                android:textSize="13sp"
+                tools:text="• Teachers Union\n• Local Chamber of Commerce" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

@@ -1,7 +1,7 @@
 package com.example.newshub.feature.elections
 
-import android.content.res.ColorStateList
 import android.graphics.Color
+import androidx.core.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -53,23 +53,38 @@ class ElectionsAdapter(
                 binding.root.context.getString(R.string.view_candidates)
             }
 
-            val status = item.status.ifBlank { "OPEN" }
-            binding.textElectionStatus.text = status.uppercase()
-            applyStatusChipColor(status)
+            val status = item.status.ifBlank { "Active" }
+            val normalized = status.uppercase()
+            binding.textElectionStatus.text = when {
+                normalized.contains("UPCOMING") -> "Upcoming"
+                normalized.contains("ACTIVE") || normalized.contains("OPEN") -> "Active"
+                else -> status.replaceFirstChar { it.uppercase() }
+            }
+            applyStatusChipStyle(normalized)
 
             binding.root.setOnClickListener { onClick(item) }
         }
 
-        private fun applyStatusChipColor(status: String) {
-            val normalized = status.uppercase()
-            val color = when {
-                normalized.contains("ACTIVE") || normalized.contains("OPEN") ->
-                    Color.parseColor("#16A34A")
-                normalized.contains("UPCOMING") ->
-                    Color.parseColor("#D97706")
-                else -> Color.parseColor("#64748B")
+        private fun applyStatusChipStyle(status: String) {
+            val context = binding.root.context
+            when {
+                status.contains("UPCOMING") -> {
+                    binding.textElectionStatus.setBackgroundResource(R.drawable.bg_status_upcoming)
+                    binding.textElectionStatus.setTextColor(Color.parseColor("#92400E"))
+                }
+                status.contains("ACTIVE") || status.contains("OPEN") -> {
+                    binding.textElectionStatus.setBackgroundResource(R.drawable.bg_status_active)
+                    binding.textElectionStatus.setTextColor(
+                        ContextCompat.getColor(context, R.color.home_success_text)
+                    )
+                }
+                else -> {
+                    binding.textElectionStatus.setBackgroundResource(R.drawable.bg_home_chip_muted)
+                    binding.textElectionStatus.setTextColor(
+                        ContextCompat.getColor(context, R.color.home_text_secondary)
+                    )
+                }
             }
-            binding.textElectionStatus.backgroundTintList = ColorStateList.valueOf(color)
         }
     }
 

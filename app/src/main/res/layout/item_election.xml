@@ -34,12 +34,12 @@
                 android:layout_gravity="start|top"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/bg_home_chip_muted"
+                android:background="@drawable/bg_status_active"
                 android:paddingStart="10dp"
                 android:paddingTop="4dp"
                 android:paddingEnd="10dp"
                 android:paddingBottom="4dp"
-                android:textColor="@android:color/white"
+                android:textColor="@color/home_success_text"
                 android:textSize="10sp"
                 android:textStyle="bold"
                 tools:text="ACTIVE" />
@@ -51,24 +51,45 @@
             android:orientation="vertical"
             android:padding="14dp">
 
-            <TextView
-                android:id="@+id/text_election_region"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAllCaps="true"
-                android:textColor="@color/home_text_secondary"
-                android:textSize="10sp"
-                tools:text="NATIONAL" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_location"
+                    app:tint="@color/home_muted" />
+
+                <TextView
+                    android:id="@+id/text_election_region"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:textAllCaps="true"
+                    android:textColor="@color/home_text_secondary"
+                    android:textSize="10sp"
+                    tools:text="NATIONAL" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/text_election_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="6dp"
                 android:textColor="@color/home_text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 tools:text="National General Election 2026" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/home_border" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -81,7 +102,7 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:contentDescription="@null"
-                    android:src="@android:drawable/ic_menu_today"
+                    android:src="@drawable/ic_calendar"
                     app:tint="@color/home_muted" />
 
                 <TextView

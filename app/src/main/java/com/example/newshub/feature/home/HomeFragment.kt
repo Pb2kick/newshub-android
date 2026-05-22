@@ -121,23 +121,16 @@ class HomeFragment : Fragment() {
         }
 
         binding.buttonSeeMore.setOnClickListener { viewModel.loadMore() }
-        binding.buttonRefresh.setOnClickListener {
-            if (hasLocationPermission()) {
-                resolveLastKnownLocation()
-            }
-            refreshNews()
-        }
-        binding.buttonSearch.setOnClickListener {
+        binding.topBarInclude.buttonSearch.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_searchFragment)
         }
-        binding.buttonNotifications.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_notificationsFragment)
-        }
-        binding.buttonProfileShortcut.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_profileFragment)
-        }
-        binding.buttonMenu.setOnClickListener {
-            Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
+        binding.topBarInclude.buttonLocation.setOnClickListener {
+            if (hasLocationPermission()) {
+                resolveLastKnownLocation()
+            } else {
+                requestLocationPermission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+            }
+            refreshNews()
         }
         BottomNavHelper.wire(
             fragment = this,
@@ -212,7 +205,7 @@ class HomeFragment : Fragment() {
         val userId = sessionStore.getUserId()
         val token = sessionStore.getAccessToken()
         if (userId.isNullOrBlank() || token.isNullOrBlank() || !supabaseService.isConfigured) {
-            binding.badgeNotifications.visibility = View.GONE
+            binding.bottomNavBar.badgeNavAlerts.visibility = View.GONE
             return
         }
         lifecycleScope.launch {
@@ -223,12 +216,7 @@ class HomeFragment : Fragment() {
                 }
             }
             if (_binding == null) return@launch
-            if (count > 0) {
-                binding.badgeNotifications.visibility = View.VISIBLE
-                binding.badgeNotifications.text = if (count > 9) "9+" else count.toString()
-            } else {
-                binding.badgeNotifications.visibility = View.GONE
-            }
+            binding.bottomNavBar.badgeNavAlerts.visibility = if (count > 0) View.VISIBLE else View.GONE
         }
     }
 

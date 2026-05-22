@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import coil.load
-import coil.transform.CircleCropTransformation
 import com.example.newshub.CandidateRecord
 import com.example.newshub.R
 import com.example.newshub.databinding.FragmentCandidateProfileBinding
@@ -39,6 +38,10 @@ class CandidateProfileFragment : Fragment(), CandidateProfileContract.View {
         val snapshot = arguments?.toCandidateSnapshot()
 
         binding.buttonBack.setOnClickListener { findNavController().popBackStack() }
+        binding.topBarInclude.buttonSearch.setOnClickListener {
+            findNavController().navigate(R.id.searchFragment)
+        }
+        binding.topBarInclude.buttonLocation.setOnClickListener { }
         binding.buttonVote.setOnClickListener { presenter.onVoteClicked() }
 
         presenter.onScreenStarted(candidateId, snapshot, electionName)
@@ -63,12 +66,20 @@ class CandidateProfileFragment : Fragment(), CandidateProfileContract.View {
         binding.textPosition.text = candidate.position.ifBlank { getString(R.string.candidate_position_unknown) }
         binding.textParty.text = candidate.party
         binding.textBio.text = candidate.platform
-        binding.textEducation.text = candidate.education.ifBlank { getString(R.string.candidate_education_unknown) }
+        binding.buttonVote.text = getString(R.string.vote_for_candidate_named, candidate.fullName)
+        binding.textStatEducation.text = candidate.education.ifBlank { getString(R.string.candidate_stat_unknown) }
+        binding.textStatAge.text = getString(R.string.candidate_stat_unknown)
+        binding.textStatYears.text = getString(R.string.candidate_stat_unknown)
+        binding.textStatResidence.text = getString(R.string.candidate_stat_unknown)
+        binding.textEndorsements.text = if (candidate.party.isBlank()) {
+            getString(R.string.candidate_stat_unknown)
+        } else {
+            "• ${candidate.party}"
+        }
         binding.imagePhoto.load(candidate.photoUrl) {
             crossfade(true)
-            transformations(CircleCropTransformation())
-            placeholder(R.drawable.bg_home_chip_muted)
-            error(R.drawable.bg_home_chip_muted)
+            placeholder(R.drawable.bg_home_feature_placeholder)
+            error(R.drawable.bg_home_feature_placeholder)
         }
     }
 

@@ -34,10 +34,16 @@
             android:orientation="vertical"
             android:padding="4dp">
 
+            <View
+                android:layout_width="28dp"
+                android:layout_height="3dp"
+                android:visibility="invisible" />
+
             <ImageView
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:src="@android:drawable/ic_menu_compass"
+                android:layout_marginTop="4dp"
+                android:src="@drawable/ic_nav_home"
                 app:tint="@color/home_muted" />
 
             <TextView
@@ -58,10 +64,16 @@
             android:orientation="vertical"
             android:padding="4dp">
 
+            <View
+                android:layout_width="28dp"
+                android:layout_height="3dp"
+                android:visibility="invisible" />
+
             <ImageView
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:src="@android:drawable/ic_menu_sort_by_size"
+                android:layout_marginTop="4dp"
+                android:src="@drawable/ic_nav_elections"
                 app:tint="@color/home_muted" />
 
             <TextView
@@ -82,11 +94,30 @@
             android:orientation="vertical"
             android:padding="4dp">
 
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:src="@android:drawable/ic_popup_reminder"
-                app:tint="@color/home_muted" />
+            <View
+                android:layout_width="28dp"
+                android:layout_height="3dp"
+                android:visibility="invisible" />
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_nav_alerts"
+                    app:tint="@color/home_muted" />
+
+                <View
+                    android:id="@+id/badge_nav_alerts"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_gravity="top|end"
+                    android:background="@drawable/bg_notification_dot"
+                    android:visibility="gone" />
+            </FrameLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -106,10 +137,16 @@
             android:orientation="vertical"
             android:padding="4dp">
 
+            <View
+                android:layout_width="28dp"
+                android:layout_height="3dp"
+                android:background="@drawable/bg_nav_indicator" />
+
             <ImageView
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:src="@android:drawable/ic_menu_myplaces"
+                android:layout_marginTop="4dp"
+                android:src="@drawable/ic_nav_profile"
                 app:tint="@color/home_primary" />
 
             <TextView

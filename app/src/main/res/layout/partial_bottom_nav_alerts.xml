@@ -97,7 +97,7 @@
             <View
                 android:layout_width="28dp"
                 android:layout_height="3dp"
-                android:visibility="invisible" />
+                android:background="@drawable/bg_nav_indicator" />
 
             <FrameLayout
                 android:layout_width="wrap_content"
@@ -108,7 +108,7 @@
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:src="@drawable/ic_nav_alerts"
-                    app:tint="@color/home_muted" />
+                    app:tint="@color/home_primary" />
 
                 <View
                     android:id="@+id/badge_nav_alerts"
@@ -124,8 +124,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="@string/home_nav_alerts"
-                android:textColor="@color/home_muted"
-                android:textSize="10sp" />
+                android:textColor="@color/home_primary"
+                android:textSize="10sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout

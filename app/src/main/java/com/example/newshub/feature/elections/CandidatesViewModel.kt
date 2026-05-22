@@ -13,7 +13,9 @@ import kotlinx.coroutines.launch
 
 data class CandidatesUiState(
     val isLoading: Boolean = false,
+    val allItems: List<CandidateRecord> = emptyList(),
     val items: List<CandidateRecord> = emptyList(),
+    val searchQuery: String = "",
     val emptyMessageRes: Int? = null,
     val messageRes: Int? = null
 )
@@ -30,10 +32,13 @@ class CandidatesViewModel(
         viewModelScope.launch {
             when (val result = backendService.fetchCandidates(electionId)) {
                 is ApiResult.Success -> {
-                    _uiState.value = CandidatesUiState(
+                    val current = _uiState.value ?: CandidatesUiState()
+                    val filtered = applySearch(result.data, current.searchQuery)
+                    _uiState.value = current.copy(
                         isLoading = false,
-                        items = result.data,
-                        emptyMessageRes = if (result.data.isEmpty()) R.string.candidates_empty else null
+                        allItems = result.data,
+                        items = filtered,
+                        emptyMessageRes = if (filtered.isEmpty()) R.string.candidates_empty else null
                     )
                 }
 
@@ -49,8 +54,25 @@ class CandidatesViewModel(
         }
     }
 
+    fun setSearchQuery(query: String) {
+        val current = _uiState.value ?: return
+        val filtered = applySearch(current.allItems, query)
+        _uiState.value = current.copy(
+            searchQuery = query,
+            items = filtered,
+            emptyMessageRes = if (filtered.isEmpty()) R.string.candidates_empty else null
+        )
+    }
+
     fun consumeMessage() {
         _uiState.value = _uiState.value?.copy(messageRes = null)
     }
-}
 
+    private fun applySearch(items: List<CandidateRecord>, query: String): List<CandidateRecord> {
+        val q = query.trim().lowercase()
+        if (q.isBlank()) return items
+        return items.filter {
+            it.fullName.lowercase().contains(q) || it.party.lowercase().contains(q)
+        }
+    }
+}

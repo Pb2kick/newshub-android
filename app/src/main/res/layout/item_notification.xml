@@ -4,30 +4,87 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/bg_notification_card"
+    android:padding="14dp">
 
     <View
-        android:id="@+id/unread_accent"
-        android:layout_width="2dp"
-        android:layout_height="0dp"
-        android:background="@color/home_primary"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:id="@+id/dot_unread"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:background="@drawable/bg_notification_dot"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <FrameLayout
+        android:id="@+id/icon_container"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_notification_icon"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/image_icon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_nav_elections"
+            app:tint="@color/home_primary" />
+    </FrameLayout>
 
     <TextView
-        android:id="@+id/text_actor"
+        android:id="@+id/text_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="12dp"
         android:textColor="@color/home_text_primary"
-        android:textSize="14sp"
+        android:textSize="15sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/icon_container"
+        app:layout_constraintTop_toTopOf="@id/icon_container"
+        tools:text="Upcoming Election Reminder" />
+
+    <TextView
+        android:id="@+id/text_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:lineSpacingExtra="2dp"
+        android:textColor="@color/home_text_secondary"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/icon_container"
+        app:layout_constraintTop_toBottomOf="@id/text_title"
+        tools:text="The National Election is in 2 days. Make sure your voter registration is complete." />
+
+    <ImageView
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:layout_marginTop="10dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_clock"
+        app:layout_constraintStart_toStartOf="@id/text_title"
+        app:layout_constraintTop_toBottomOf="@id/text_message"
+        app:tint="@color/home_muted" />
+
+    <TextView
+        android:id="@+id/text_time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/home_muted"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/button_delete"
-        app:layout_constraintStart_toEndOf="@id/unread_accent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Jane Doe" />
+        app:layout_constraintStart_toEndOf="@id/icon_container"
+        app:layout_constraintTop_toBottomOf="@id/text_message"
+        tools:text="2 hours ago" />
 
     <ImageButton
         android:id="@+id/button_delete"
@@ -35,35 +92,9 @@
         android:layout_height="32dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/delete"
-        android:src="@android:drawable/ic_menu_delete"
+        android:src="@drawable/ic_delete"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/home_text_secondary" />
-
-    <TextView
-        android:id="@+id/text_message"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="4dp"
-        android:textColor="@color/home_text_secondary"
-        android:textSize="13sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/unread_accent"
-        app:layout_constraintTop_toBottomOf="@id/text_actor"
-        tools:text="replied to your comment" />
-
-    <TextView
-        android:id="@+id/text_time"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="4dp"
-        android:textColor="@color/home_muted"
-        android:textSize="11sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/unread_accent"
-        app:layout_constraintTop_toBottomOf="@id/text_message"
-        tools:text="2 hours ago" />
+        app:tint="@color/home_muted" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -66,9 +66,7 @@ class ProfileFragment : Fragment(), ProfileContract.View {
             showMessage(R.string.home_placeholder_action)
         }
 
-        binding.buttonMenu.setOnClickListener(placeholderClick)
-        binding.buttonRefresh.setOnClickListener { presenter.onScreenStarted() }
-        binding.buttonProfileShortcut.setOnClickListener { }
+        binding.buttonBackHome.setOnClickListener { presenter.onBackClicked() }
 
         BottomNavHelper.wire(
             fragment = this,
@@ -174,13 +172,19 @@ class ProfileFragment : Fragment(), ProfileContract.View {
 
         when (status) {
             VerificationStatus.Verified -> {
-                binding.imageVerificationStatus.setImageResource(android.R.drawable.checkbox_on_background)
-                binding.imageVerificationStatus.setColorFilter(
-                    ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
+                binding.imageVerificationStatus.setImageResource(R.drawable.ic_check_circle)
+                binding.imageVerificationStatus.clearColorFilter()
+                binding.textVerificationStatus.text = getString(R.string.profile_verified_voter)
+                binding.textVerificationStatus.setBackgroundResource(R.drawable.bg_verified_badge)
+                binding.textVerificationStatus.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.home_success_text)
                 )
-                binding.textVerificationStatus.text = getString(R.string.verification_verified)
             }
             VerificationStatus.Pending -> {
+                binding.textVerificationStatus.background = null
+                binding.textVerificationStatus.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.home_text_primary)
+                )
                 binding.imageVerificationStatus.setImageResource(android.R.drawable.ic_menu_recent_history)
                 binding.imageVerificationStatus.setColorFilter(
                     ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)
