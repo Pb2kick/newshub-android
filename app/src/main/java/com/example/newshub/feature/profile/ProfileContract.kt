@@ -8,6 +8,7 @@ interface ProfileContract {
         fun navigateToLogin()
         fun openImagePicker()
         fun renderName(firstName: String, lastName: String, fullName: String)
+        fun renderAccountDetails(email: String, voterId: String)
         fun renderAvatar(avatarUrl: String?)
         fun clearPasswordInputs()
         fun showVerificationStatus(status: VerificationStatus)

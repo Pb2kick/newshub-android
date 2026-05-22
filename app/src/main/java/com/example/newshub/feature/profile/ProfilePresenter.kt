@@ -74,6 +74,10 @@ class ProfilePresenter(
             }
 
             userEmail = authUser.email
+            view?.renderAccountDetails(
+                email = userEmail.orEmpty(),
+                voterId = formatVoterId(effectiveUserId)
+            )
             when (val profileResult = profileRepository.fetchProfile(effectiveUserId, accessToken)) {
                 is ApiResult.Success -> {
                     val resolved = resolveProfile(profileResult.data, authUser)
@@ -311,6 +315,12 @@ class ProfilePresenter(
 
     private fun hasAnyProfileData(profile: ProfileRecord): Boolean {
         return profile.firstName.isNotBlank() || profile.lastName.isNotBlank() || !profile.avatarUrl.isNullOrBlank()
+    }
+
+    private fun formatVoterId(userId: String): String {
+        val trimmed = userId.trim()
+        if (trimmed.isBlank()) return ""
+        return if (trimmed.startsWith("VID", ignoreCase = true)) trimmed else "VID-$trimmed"
     }
 
     private fun handleFailure(result: ApiResult.Failure) {

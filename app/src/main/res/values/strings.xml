@@ -70,6 +70,7 @@
     <string name="profile_status_label">STATUS</string>
     <string name="profile_verified_voter">Verified Voter</string>
     <string name="profile_voter_id_unknown">Not assigned</string>
+    <string name="profile_email_unknown">Not available</string>
     <string name="profile_subtitle">Manage your account settings and security</string>
     <string name="profile_avatar">Profile avatar</string>
     <string name="profile_logout">Log out</string>

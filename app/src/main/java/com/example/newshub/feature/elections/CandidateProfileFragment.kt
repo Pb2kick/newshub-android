@@ -63,19 +63,43 @@ class CandidateProfileFragment : Fragment(), CandidateProfileContract.View {
 
     override fun renderCandidate(candidate: CandidateRecord, electionName: String) {
         binding.textCandidateName.text = candidate.fullName
-        binding.textPosition.text = candidate.position.ifBlank { getString(R.string.candidate_position_unknown) }
-        binding.textParty.text = candidate.party
-        binding.textBio.text = candidate.platform
         binding.buttonVote.text = getString(R.string.vote_for_candidate_named, candidate.fullName)
-        binding.textStatEducation.text = candidate.education.ifBlank { getString(R.string.candidate_stat_unknown) }
-        binding.textStatAge.text = getString(R.string.candidate_stat_unknown)
-        binding.textStatYears.text = getString(R.string.candidate_stat_unknown)
-        binding.textStatResidence.text = getString(R.string.candidate_stat_unknown)
-        binding.textEndorsements.text = if (candidate.party.isBlank()) {
-            getString(R.string.candidate_stat_unknown)
-        } else {
-            "• ${candidate.party}"
+
+        val hasPosition = candidate.position.isNotBlank()
+        binding.textPosition.visibility = if (hasPosition) View.VISIBLE else View.GONE
+        if (hasPosition) {
+            binding.textPosition.text = candidate.position
         }
+
+        val hasParty = candidate.party.isNotBlank()
+        binding.textParty.visibility = if (hasParty) View.VISIBLE else View.GONE
+        if (hasParty) {
+            binding.textParty.text = candidate.party
+        }
+
+        val hasPlatform = candidate.platform.isNotBlank()
+        binding.layoutAboutHeader.visibility = if (hasPlatform) View.VISIBLE else View.GONE
+        binding.textBio.visibility = if (hasPlatform) View.VISIBLE else View.GONE
+        if (hasPlatform) {
+            binding.textBio.text = candidate.platform
+        }
+
+        val hasEducation = candidate.education.isNotBlank()
+        binding.rowStatEducation.visibility = if (hasEducation) View.VISIBLE else View.GONE
+        binding.cardQuickStats.visibility = if (hasEducation) View.VISIBLE else View.GONE
+        if (hasEducation) {
+            binding.textStatEducation.text = candidate.education
+        }
+
+        if (hasParty) {
+            binding.layoutEndorsementsHeader.visibility = View.VISIBLE
+            binding.textEndorsements.visibility = View.VISIBLE
+            binding.textEndorsements.text = "• ${candidate.party}"
+        } else {
+            binding.layoutEndorsementsHeader.visibility = View.GONE
+            binding.textEndorsements.visibility = View.GONE
+        }
+
         binding.imagePhoto.load(candidate.photoUrl) {
             crossfade(true)
             placeholder(R.drawable.bg_home_feature_placeholder)

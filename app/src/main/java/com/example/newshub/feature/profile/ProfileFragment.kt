@@ -156,6 +156,11 @@ class ProfileFragment : Fragment(), ProfileContract.View {
         isBindingName = false
     }
 
+    override fun renderAccountDetails(email: String, voterId: String) {
+        binding.textDisplayEmail.text = email.ifBlank { getString(R.string.profile_email_unknown) }
+        binding.textDisplayVoterId.text = voterId.ifBlank { getString(R.string.profile_voter_id_unknown) }
+    }
+
     override fun renderAvatar(avatarUrl: String?) {
         loadAvatar(avatarUrl)
     }
