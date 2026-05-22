@@ -18,15 +18,13 @@
         android:paddingEnd="16dp"
         android:paddingBottom="32dp">
 
-        <TextView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_auth_logo"
-            android:gravity="center"
-            android:text="@string/logo_initials"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+        <ImageView
+            android:id="@+id/image_logo"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:contentDescription="@string/home_brand"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_newshub_logo" />
 
         <TextView
             android:layout_width="wrap_content"

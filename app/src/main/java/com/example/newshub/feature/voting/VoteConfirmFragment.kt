@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.newshub.R
 import com.example.newshub.core.session.AndroidSessionStore
 import com.example.newshub.databinding.FragmentVoteConfirmBinding
+import com.example.newshub.ui.BottomNavHelper
 
 class VoteConfirmFragment : Fragment() {
 
@@ -54,13 +55,13 @@ class VoteConfirmFragment : Fragment() {
             findNavController().navigate(R.id.profileFragment)
         }
 
-        binding.navNews.setOnClickListener {
-            findNavController().navigate(R.id.homeFragment)
-        }
-        binding.navElections.setOnClickListener { }
-        binding.navProfile.setOnClickListener {
-            findNavController().navigate(R.id.profileFragment)
-        }
+        BottomNavHelper.wire(
+            fragment = this,
+            navHome = binding.bottomNavBar.navHome,
+            navElections = binding.bottomNavBar.navElections,
+            navAlerts = binding.bottomNavBar.navAlerts,
+            navProfile = binding.bottomNavBar.navProfile
+        )
 
         binding.buttonConfirmVote.setOnClickListener {
             viewModel.submitVote(electionId = electionId, candidateId = candidateId)

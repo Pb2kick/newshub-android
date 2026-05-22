@@ -26,6 +26,7 @@ import com.example.newshub.core.session.AndroidSessionStore
 import com.example.newshub.databinding.FragmentHomeBinding
 import com.example.newshub.network.ApiResult
 import com.example.newshub.toDetailBundle
+import com.example.newshub.ui.BottomNavHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -138,12 +139,15 @@ class HomeFragment : Fragment() {
         binding.buttonMenu.setOnClickListener {
             Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
         }
-        binding.navNews.setOnClickListener { }
-        binding.navElections.setOnClickListener {
+        BottomNavHelper.wire(
+            fragment = this,
+            navHome = binding.bottomNavBar.navHome,
+            navElections = binding.bottomNavBar.navElections,
+            navAlerts = binding.bottomNavBar.navAlerts,
+            navProfile = binding.bottomNavBar.navProfile
+        )
+        binding.bottomNavBar.navElections.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_electionsFragment)
-        }
-        binding.navProfile.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_profileFragment)
         }
     }
 

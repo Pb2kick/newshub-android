@@ -20,6 +20,7 @@ import com.example.newshub.BuildConfig
 import com.example.newshub.R
 import com.example.newshub.core.session.AndroidSessionStore
 import com.example.newshub.databinding.FragmentProfileBinding
+import com.example.newshub.ui.BottomNavHelper
 import androidx.core.content.ContextCompat
 
 class ProfileFragment : Fragment(), ProfileContract.View {
@@ -69,11 +70,15 @@ class ProfileFragment : Fragment(), ProfileContract.View {
         binding.buttonRefresh.setOnClickListener { presenter.onScreenStarted() }
         binding.buttonProfileShortcut.setOnClickListener { }
 
-        binding.navNews.setOnClickListener { presenter.onBackClicked() }
-        binding.navElections.setOnClickListener {
-            findNavController().navigate(R.id.electionsFragment)
-        }
-        binding.navProfile.setOnClickListener { }
+        BottomNavHelper.wire(
+            fragment = this,
+            navHome = binding.bottomNavBar.navHome,
+            navElections = binding.bottomNavBar.navElections,
+            navAlerts = binding.bottomNavBar.navAlerts,
+            navProfile = binding.bottomNavBar.navProfile
+        )
+        binding.bottomNavBar.navHome.setOnClickListener { presenter.onBackClicked() }
+        binding.bottomNavBar.navProfile.setOnClickListener { }
         binding.buttonLogout.setOnClickListener { presenter.onLogoutClicked() }
         binding.textDevRegister.setOnClickListener(placeholderClick)
         binding.textDevSignin.setOnClickListener(placeholderClick)

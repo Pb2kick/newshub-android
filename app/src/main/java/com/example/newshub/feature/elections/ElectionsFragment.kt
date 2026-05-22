@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.newshub.R
 import com.example.newshub.databinding.FragmentElectionsBinding
 import com.example.newshub.toDetailBundle
+import com.example.newshub.ui.BottomNavHelper
 
 class ElectionsFragment : Fragment() {
 
@@ -49,13 +50,14 @@ class ElectionsFragment : Fragment() {
             findNavController().navigate(R.id.profileFragment)
         }
 
-        binding.navNews.setOnClickListener {
-            findNavController().navigate(R.id.homeFragment)
-        }
-        binding.navElections.setOnClickListener { }
-        binding.navProfile.setOnClickListener {
-            findNavController().navigate(R.id.profileFragment)
-        }
+        BottomNavHelper.wire(
+            fragment = this,
+            navHome = binding.bottomNavBar.navHome,
+            navElections = binding.bottomNavBar.navElections,
+            navAlerts = binding.bottomNavBar.navAlerts,
+            navProfile = binding.bottomNavBar.navProfile
+        )
+        binding.bottomNavBar.navElections.setOnClickListener { }
 
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
             binding.progressElections.visibility = if (state.isLoading) View.VISIBLE else View.GONE

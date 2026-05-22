@@ -20,7 +20,7 @@ android {
         val supabaseProfileTable = (project.findProperty("SUPABASE_PROFILE_TABLE") as String?) ?: "users"
         val supabaseUserIdColumn = (project.findProperty("SUPABASE_PROFILE_USER_ID_COLUMN") as String?) ?: "auth_user_id"
         val supabasePhotoColumn = (project.findProperty("SUPABASE_PROFILE_PHOTO_COLUMN") as String?) ?: "profile_photo_url"
-        val backendBaseUrl = (project.findProperty("BACKEND_BASE_URL") as String?) ?: "http://10.0.2.2:8080"
+        val backendBaseUrl = (project.findProperty("BACKEND_BASE_URL") as String?) ?: "https://newshub-4kk0.onrender.com"
 
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")

@@ -20,6 +20,7 @@ import com.example.newshub.R
 import com.example.newshub.core.session.AndroidSessionStore
 import com.example.newshub.databinding.FragmentNewsDetailBinding
 import com.example.newshub.toDetailBundle
+import com.example.newshub.ui.BottomNavHelper
 
 class NewsDetailFragment : Fragment() {
 
@@ -122,9 +123,13 @@ class NewsDetailFragment : Fragment() {
             Toast.makeText(requireContext(), getString(R.string.article_bookmark), Toast.LENGTH_SHORT).show()
         }
 
-        binding.navNews.setOnClickListener { }
-        binding.navElections.setOnClickListener { findNavController().navigate(R.id.electionsFragment) }
-        binding.navProfile.setOnClickListener { findNavController().navigate(R.id.profileFragment) }
+        BottomNavHelper.wire(
+            fragment = this,
+            navHome = binding.bottomNavBar.navHome,
+            navElections = binding.bottomNavBar.navElections,
+            navAlerts = binding.bottomNavBar.navAlerts,
+            navProfile = binding.bottomNavBar.navProfile
+        )
 
         binding.buttonOpenSource.setOnClickListener {
             val url = viewModel.uiState.value?.detail?.articleUrl
