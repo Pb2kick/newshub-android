@@ -15,6 +15,7 @@ import com.example.newshub.R
 import com.example.newshub.databinding.FragmentSearchBinding
 import com.example.newshub.toDetailBundle
 import com.example.newshub.toProfileBundle
+import java.util.Locale
 
 class SearchFragment : Fragment() {
 
@@ -23,8 +24,9 @@ class SearchFragment : Fragment() {
     private val viewModel: SearchViewModel by viewModels()
     private lateinit var adapter: SearchSectionAdapter
 
-    private var locationLabel = "Global"
     private var scope = "Local"
+    private val defaultCountry: String
+        get() = Locale.getDefault().displayCountry.takeIf { it.isNotBlank() } ?: "Philippines"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -67,7 +69,12 @@ class SearchFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
             override fun afterTextChanged(s: Editable?) {
-                viewModel.search(s?.toString().orEmpty(), locationLabel, scope)
+                viewModel.search(
+                    query = s?.toString().orEmpty(),
+                    scope = scope,
+                    country = defaultCountry,
+                    area = ""
+                )
             }
         })
 

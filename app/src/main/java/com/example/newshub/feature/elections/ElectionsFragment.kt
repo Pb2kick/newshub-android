@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newshub.R
 import com.example.newshub.databinding.FragmentElectionsBinding
 import com.example.newshub.toDetailBundle
@@ -40,6 +41,7 @@ class ElectionsFragment : Fragment() {
                 election.toDetailBundle()
             )
         }
+        binding.recyclerElections.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerElections.adapter = adapter
 
         binding.topBarInclude.buttonSearch.setOnClickListener {

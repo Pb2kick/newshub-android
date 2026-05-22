@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.newshub.BackendService
+import com.example.newshub.SupabaseService
 import com.example.newshub.ElectionRecord
 import com.example.newshub.R
 import com.example.newshub.UiErrorMapper
@@ -29,7 +29,7 @@ data class ElectionsUiState(
 )
 
 class ElectionsViewModel(
-    private val backendService: BackendService = BackendService()
+    private val supabaseService: SupabaseService = SupabaseService()
 ) : ViewModel() {
 
     private val _uiState = MutableLiveData(ElectionsUiState())
@@ -38,7 +38,7 @@ class ElectionsViewModel(
     fun load() {
         _uiState.value = _uiState.value?.copy(isLoading = true)
         viewModelScope.launch {
-            when (val result = backendService.fetchElections()) {
+            when (val result = supabaseService.fetchElections()) {
                 is ApiResult.Success -> {
                     val current = _uiState.value ?: ElectionsUiState()
                     val filtered = applyFilters(result.data, current.scopeFilter, current.searchQuery)
@@ -54,7 +54,7 @@ class ElectionsViewModel(
                     _uiState.value = ElectionsUiState(
                         isLoading = false,
                         items = emptyList(),
-                        emptyMessageRes = R.string.elections_empty,
+                        emptyMessageRes = R.string.elections_load_failed,
                         messageRes = UiErrorMapper.toMessageRes(result.error)
                     )
                 }

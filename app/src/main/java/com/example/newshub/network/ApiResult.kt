@@ -8,6 +8,7 @@ sealed class ApiResult<out T> {
 enum class ApiFailureType {
     BadRequest,
     Unauthorized,
+    NotFound,
     Server,
     Network,
     Configuration,

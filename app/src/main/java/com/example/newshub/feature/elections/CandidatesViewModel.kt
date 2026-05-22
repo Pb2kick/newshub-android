@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.newshub.BackendService
+import com.example.newshub.SupabaseService
 import com.example.newshub.CandidateRecord
 import com.example.newshub.R
 import com.example.newshub.UiErrorMapper
@@ -21,7 +21,7 @@ data class CandidatesUiState(
 )
 
 class CandidatesViewModel(
-    private val backendService: BackendService = BackendService()
+    private val supabaseService: SupabaseService = SupabaseService()
 ) : ViewModel() {
 
     private val _uiState = MutableLiveData(CandidatesUiState())
@@ -30,7 +30,7 @@ class CandidatesViewModel(
     fun load(electionId: String) {
         _uiState.value = _uiState.value?.copy(isLoading = true)
         viewModelScope.launch {
-            when (val result = backendService.fetchCandidates(electionId)) {
+            when (val result = supabaseService.fetchCandidatesByElection(electionId)) {
                 is ApiResult.Success -> {
                     val current = _uiState.value ?: CandidatesUiState()
                     val filtered = applySearch(result.data, current.searchQuery)

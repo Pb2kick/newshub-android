@@ -39,6 +39,16 @@ interface SupabaseRestApi {
         @Body body: Map<String, @JvmSuppressWildcards Any?>
     ): Response<Unit>
 
+    @POST
+    suspend fun insertRowReturning(
+        @Url url: String,
+        @Header("apikey") apiKey: String,
+        @Header("Authorization") authorization: String,
+        @Header("Content-Type") contentType: String = "application/json",
+        @Header("Prefer") prefer: String = "return=representation",
+        @Body body: Map<String, @JvmSuppressWildcards Any?>
+    ): Response<List<Map<String, Any?>>>
+
     @HTTP(method = "DELETE", hasBody = false)
     suspend fun deleteRow(
         @Url url: String,

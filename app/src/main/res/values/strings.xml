@@ -115,8 +115,11 @@
     <string name="error_bad_request">The request is invalid. Please check your input.</string>
     <string name="error_unauthorized">Your session expired. Please sign in again.</string>
     <string name="error_server">Server error. Please try again later.</string>
-    <string name="error_network">No internet connection. Check your network and retry.</string>
+    <string name="error_network">Could not reach the server in time. If the app just started, wait a moment and try again (the backend may be waking up).</string>
     <string name="error_configuration">Cannot reach service endpoint. Verify your API base URLs and try again.</string>
+    <string name="error_not_found">This data is not available on the server (404). The backend may need to be redeployed.</string>
+    <string name="news_load_failed">Could not load articles. Pull down or tap refresh to retry.</string>
+    <string name="elections_load_failed">Could not load elections from the server.</string>
     <string name="error_unknown">Something went wrong. Please try again.</string>
     <string name="home_dashboard_ready">Dashboard loaded.</string>
     <string name="common_back">Back</string>
@@ -153,6 +156,11 @@
     <string name="vote_status_label">Status</string>
     <string name="vote_message_label">Message</string>
     <string name="vote_done_action">Done</string>
+    <string name="vote_error_already_voted">You have already voted in this election.</string>
+    <string name="vote_error_not_verified">Voter verification must be approved before you can vote.</string>
+    <string name="vote_error_not_active">This election is not open for voting.</string>
+    <string name="vote_error_profile_missing">Complete your profile before voting.</string>
+    <string name="vote_error_generic">Unable to submit your vote. Please try again.</string>
     <string name="news_search">Search</string>
     <string name="article_back_to_news">Back to News</string>
     <string name="article_updated_placeholder">Updated 1 hour ago</string>

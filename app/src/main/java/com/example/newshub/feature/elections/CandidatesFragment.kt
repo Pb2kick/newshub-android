@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newshub.R
 import com.example.newshub.databinding.FragmentCandidatesBinding
 import com.example.newshub.toProfileBundle
@@ -50,6 +51,7 @@ class CandidatesFragment : Fragment() {
                 candidate.toProfileBundle(electionName)
             )
         }
+        binding.recyclerCandidates.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerCandidates.adapter = adapter
 
         binding.buttonBack.setOnClickListener { findNavController().popBackStack() }

@@ -9,6 +9,7 @@ object UiErrorMapper {
         return when (error.type) {
             ApiFailureType.BadRequest -> R.string.error_bad_request
             ApiFailureType.Unauthorized -> R.string.error_unauthorized
+            ApiFailureType.NotFound -> R.string.error_not_found
             ApiFailureType.Server -> R.string.error_server
             ApiFailureType.Network -> R.string.error_network
             ApiFailureType.Configuration -> R.string.error_configuration
@@ -16,4 +17,3 @@ object UiErrorMapper {
         }
     }
 }
-

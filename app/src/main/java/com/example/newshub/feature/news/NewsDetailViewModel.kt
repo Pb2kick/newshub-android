@@ -71,9 +71,9 @@ class NewsDetailViewModel(
                 val result = backendService.fetchNews(
                     lat = null,
                     lng = null,
-                    location = null,
-                    category = category,
                     scope = "National",
+                    country = java.util.Locale.getDefault().displayCountry.ifBlank { "Philippines" },
+                    area = null,
                     page = 0,
                     size = 4
                 )

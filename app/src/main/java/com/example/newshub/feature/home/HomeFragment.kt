@@ -36,9 +36,7 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: HomeViewModel by viewModels {
-        HomeViewModelFactory(AndroidSessionStore(requireContext().applicationContext))
-    }
+    private val viewModel: HomeViewModel by viewModels()
     private lateinit var adapter: NewsAdapter
     private var lastLat: Double? = null
     private var lastLng: Double? = null
@@ -189,14 +187,16 @@ class HomeFragment : Fragment() {
     }
 
     private fun refreshNews() {
-        val locationLabel = resolveLocationLabel()
-        binding.textLocation.text = getString(R.string.news_location_format, locationLabel)
+        val location = resolveLocationContext()
+        binding.textLocation.text = getString(R.string.news_location_format, location.label)
         viewModel.loadNews(
-            locationLabel = locationLabel,
+            locationLabel = location.label,
             lat = lastLat,
             lng = lastLng,
             category = selectedCategory,
-            scope = selectedScope
+            scope = selectedScope,
+            country = location.country,
+            area = location.area
         )
     }
 
@@ -220,7 +220,13 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun resolveLocationLabel(): String {
+    private data class LocationContext(
+        val label: String,
+        val country: String,
+        val area: String
+    )
+
+    private fun resolveLocationContext(): LocationContext {
         val lat = lastLat
         val lng = lastLng
         if (lat != null && lng != null) {
@@ -231,18 +237,28 @@ class HomeFragment : Fragment() {
                 val locality = address?.locality.orEmpty()
                 val admin = address?.adminArea.orEmpty()
                 val country = address?.countryName.orEmpty()
-
-                return listOf(locality, admin, country)
+                val area = locality.ifBlank { admin }
+                val label = listOf(locality, admin, country)
                     .filter { it.isNotBlank() }
                     .distinct()
                     .joinToString(", ")
                     .ifBlank { country.ifBlank { "Global" } }
+                return LocationContext(
+                    label = label,
+                    country = country.ifBlank { Locale.getDefault().displayCountry },
+                    area = area.ifBlank { admin.ifBlank { country } }
+                )
             } catch (_: Throwable) {
                 // Fallback when reverse geocoding is unavailable.
             }
         }
 
-        return Locale.getDefault().displayCountry.takeIf { it.isNotBlank() } ?: "Global"
+        val fallbackCountry = Locale.getDefault().displayCountry.takeIf { it.isNotBlank() } ?: "Philippines"
+        return LocationContext(
+            label = fallbackCountry,
+            country = fallbackCountry,
+            area = ""
+        )
     }
 
     private fun hasLocationPermission(): Boolean {

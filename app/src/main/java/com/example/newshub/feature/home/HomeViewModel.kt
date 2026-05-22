@@ -8,7 +8,6 @@ import com.example.newshub.BackendService
 import com.example.newshub.NewsArticle
 import com.example.newshub.R
 import com.example.newshub.UiErrorMapper
-import com.example.newshub.core.session.SessionStore
 import com.example.newshub.network.ApiResult
 import kotlinx.coroutines.launch
 
@@ -25,7 +24,6 @@ data class HomeUiState(
 )
 
 class HomeViewModel(
-    private val sessionStore: SessionStore,
     private val backendService: BackendService = BackendService()
 ) : ViewModel() {
 
@@ -36,13 +34,24 @@ class HomeViewModel(
     private var lastLat: Double? = null
     private var lastLng: Double? = null
     private var lastLocationLabel = ""
+    private var lastCountry = ""
+    private var lastArea = ""
 
-    fun loadNews(locationLabel: String, lat: Double?, lng: Double?, category: String, scope: String) {
-        if (!ensureSession()) return
+    fun loadNews(
+        locationLabel: String,
+        lat: Double?,
+        lng: Double?,
+        category: String,
+        scope: String,
+        country: String,
+        area: String
+    ) {
         currentPage = 0
         lastLat = lat
         lastLng = lng
         lastLocationLabel = locationLabel
+        lastCountry = country
+        lastArea = area
         _uiState.value = _uiState.value?.copy(
             isLoading = true,
             isLoadingMore = false,
@@ -57,7 +66,6 @@ class HomeViewModel(
     fun loadMore() {
         val state = _uiState.value ?: return
         if (state.isLoading || state.isLoadingMore || !state.hasMore) return
-        if (!ensureSession()) return
         currentPage += 1
         _uiState.value = state.copy(isLoadingMore = true)
         fetchPage(replace = false)
@@ -74,9 +82,9 @@ class HomeViewModel(
                 val result = backendService.fetchNews(
                     lat = lastLat,
                     lng = lastLng,
-                    location = lastLocationLabel,
-                    category = state.category,
                     scope = state.scope,
+                    country = lastCountry.takeIf { it.isNotBlank() },
+                    area = lastArea.takeIf { it.isNotBlank() },
                     page = currentPage
                 )
             ) {
@@ -102,21 +110,12 @@ class HomeViewModel(
                         isLoading = false,
                         isLoadingMore = false,
                         items = if (replace) emptyList() else state.items,
-                        emptyMessageRes = if (replace) R.string.news_empty else state.emptyMessageRes,
+                        emptyMessageRes = if (replace) R.string.news_load_failed else state.emptyMessageRes,
                         messageRes = UiErrorMapper.toMessageRes(result.error),
                         locationLabel = lastLocationLabel
                     )
                 }
             }
         }
-    }
-
-    private fun ensureSession(): Boolean {
-        val accessToken = sessionStore.getAccessToken()
-        if (accessToken.isNullOrBlank()) {
-            _uiState.value = _uiState.value?.copy(messageRes = R.string.error_unauthorized)
-            return false
-        }
-        return true
     }
 }

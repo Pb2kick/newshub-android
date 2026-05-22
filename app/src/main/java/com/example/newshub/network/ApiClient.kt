@@ -12,30 +12,43 @@ object ApiClient {
         level = HttpLoggingInterceptor.Level.BASIC
     }
 
-    private val client: OkHttpClient = OkHttpClient.Builder()
+    /** Supabase / auth — keep moderate timeouts. */
+    private val defaultClient: OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(logging)
-        .connectTimeout(20, TimeUnit.SECONDS)
-        .readTimeout(20, TimeUnit.SECONDS)
-        .writeTimeout(20, TimeUnit.SECONDS)
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
+
+    /**
+     * Render free tier can take 50s+ to wake; use long timeouts and retries.
+     */
+    private val backendClient: OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor(RetryInterceptor(maxRetries = 2, initialDelayMs = 3_000L))
+        .addInterceptor(logging)
+        .connectTimeout(90, TimeUnit.SECONDS)
+        .readTimeout(90, TimeUnit.SECONDS)
+        .writeTimeout(90, TimeUnit.SECONDS)
+        .callTimeout(120, TimeUnit.SECONDS)
         .build()
 
     fun authApi(baseUrl: String): SupabaseAuthApi {
-        return retrofit(baseUrl).create(SupabaseAuthApi::class.java)
+        return retrofit(baseUrl, defaultClient).create(SupabaseAuthApi::class.java)
     }
 
     fun restApi(baseUrl: String): SupabaseRestApi {
-        return retrofit(baseUrl).create(SupabaseRestApi::class.java)
+        return retrofit(baseUrl, defaultClient).create(SupabaseRestApi::class.java)
     }
 
     fun storageApi(baseUrl: String): SupabaseStorageApi {
-        return retrofit(baseUrl).create(SupabaseStorageApi::class.java)
+        return retrofit(baseUrl, defaultClient).create(SupabaseStorageApi::class.java)
     }
 
     fun backendApi(baseUrl: String): BackendApi {
-        return retrofit(baseUrl).create(BackendApi::class.java)
+        return retrofit(baseUrl, backendClient).create(BackendApi::class.java)
     }
 
-    private fun retrofit(baseUrl: String): Retrofit {
+    private fun retrofit(baseUrl: String, client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(withTrailingSlash(baseUrl))
             .client(client)
@@ -47,4 +60,3 @@ object ApiClient {
         return if (value.endsWith("/")) value else "$value/"
     }
 }
-

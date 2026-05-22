@@ -80,9 +80,9 @@ class BackendService {
     suspend fun fetchNews(
         lat: Double? = null,
         lng: Double? = null,
-        location: String? = null,
-        category: String = "Top Stories",
         scope: String = "Local",
+        country: String? = null,
+        area: String? = null,
         page: Int = 0,
         size: Int = 4
     ): ApiResult<NewsPageResult> = withContext(Dispatchers.IO) {
@@ -90,9 +90,9 @@ class BackendService {
             val response = api.fetchNews(
                 lat = lat,
                 lng = lng,
-                location = location,
-                category = category,
-                scope = scope,
+                location = scope,
+                country = country,
+                area = area,
                 page = page,
                 size = size
             )
@@ -103,11 +103,17 @@ class BackendService {
 
     suspend fun searchNews(
         query: String,
-        location: String?,
-        scope: String?
+        scope: String?,
+        country: String? = null,
+        area: String? = null
     ): ApiResult<List<NewsArticle>> = withContext(Dispatchers.IO) {
         runApiCall {
-            val response = api.searchNews(query = query, location = location, scope = scope)
+            val response = api.searchNews(
+                query = query,
+                location = scope,
+                country = country,
+                area = area
+            )
             if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
             ApiResult.Success(parseArticles(response.body()))
         }

@@ -22,8 +22,8 @@ interface BackendApi {
         @Query("lat") lat: Double? = null,
         @Query("lng") lng: Double? = null,
         @Query("location") location: String? = null,
-        @Query("category") category: String? = null,
-        @Query("scope") scope: String? = null,
+        @Query("country") country: String? = null,
+        @Query("area") area: String? = null,
         @Query("page") page: Int? = null,
         @Query("size") size: Int? = null
     ): Response<JsonElement>
@@ -32,7 +32,8 @@ interface BackendApi {
     suspend fun searchNews(
         @Query("q") query: String,
         @Query("location") location: String? = null,
-        @Query("scope") scope: String? = null,
+        @Query("country") country: String? = null,
+        @Query("area") area: String? = null,
         @Query("limit") limit: Int = 5
     ): Response<JsonElement>
 

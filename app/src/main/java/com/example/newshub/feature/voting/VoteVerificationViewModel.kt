@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.newshub.BackendService
 import com.example.newshub.R
+import com.example.newshub.SupabaseService
 import com.example.newshub.UiErrorMapper
 import com.example.newshub.core.session.SessionStore
 import com.example.newshub.network.ApiResult
@@ -20,7 +20,7 @@ data class VoteVerificationUiState(
 
 class VoteVerificationViewModel(
     private val sessionStore: SessionStore,
-    private val backendService: BackendService = BackendService()
+    private val supabaseService: SupabaseService = SupabaseService()
 ) : ViewModel() {
 
     private val _uiState = MutableLiveData(VoteVerificationUiState())
@@ -35,7 +35,7 @@ class VoteVerificationViewModel(
 
         _uiState.value = VoteVerificationUiState(isLoading = true, message = defaultMessage)
         viewModelScope.launch {
-            when (val result = backendService.verifyVote(receiptId, accessToken)) {
+            when (val result = supabaseService.verifyVoteReceipt(receiptId, accessToken)) {
                 is ApiResult.Success -> {
                     _uiState.value = VoteVerificationUiState(
                         isLoading = false,
@@ -64,4 +64,3 @@ class VoteVerificationViewModel(
         _uiState.value = _uiState.value?.copy(messageRes = null)
     }
 }
-

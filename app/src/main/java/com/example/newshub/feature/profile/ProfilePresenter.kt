@@ -58,6 +58,11 @@ class ProfilePresenter(
             return
         }
 
+        view?.renderAccountDetails(
+            email = "",
+            voterId = formatVoterId(sessionUserId)
+        )
+
         view?.showLoading(true)
         scope.launch {
             val authResult = authRepository.fetchAuthUser(accessToken)
@@ -96,7 +101,13 @@ class ProfilePresenter(
                     }
                 }
 
-                is ApiResult.Failure -> handleFailure(profileResult)
+                is ApiResult.Failure -> {
+                    view?.renderAccountDetails(
+                        email = userEmail.orEmpty(),
+                        voterId = formatVoterId(effectiveUserId)
+                    )
+                    handleFailure(profileResult)
+                }
             }
 
             loadVerificationStatus(effectiveUserId, accessToken)

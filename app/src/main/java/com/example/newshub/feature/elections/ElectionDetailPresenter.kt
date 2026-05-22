@@ -1,6 +1,6 @@
 package com.example.newshub.feature.elections
 
-import com.example.newshub.BackendService
+import com.example.newshub.SupabaseService
 import com.example.newshub.ElectionRecord
 import com.example.newshub.R
 import com.example.newshub.UiErrorMapper
@@ -12,7 +12,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class ElectionDetailPresenter(
-    private val backendService: BackendService = BackendService()
+    private val supabaseService: SupabaseService = SupabaseService()
 ) : ElectionDetailContract.Presenter {
 
     private var view: ElectionDetailContract.View? = null
@@ -36,10 +36,11 @@ class ElectionDetailPresenter(
 
         view?.showLoading(true)
         scope.launch {
-            when (val result = backendService.fetchElection(electionId)) {
+            when (val result = supabaseService.fetchElection(electionId)) {
                 is ApiResult.Success -> {
-                    election = result.data
-                    view?.renderElection(result.data)
+                    val resolved = result.data ?: snapshot
+                    election = resolved
+                    resolved?.let { view?.renderElection(it) }
                 }
                 is ApiResult.Failure -> {
                     if (snapshot == null) {

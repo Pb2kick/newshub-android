@@ -315,12 +315,9 @@ class SupabaseService {
         accessToken: String?
     ): ApiResult<ProfileRecord?> {
         val encodedUserId = urlEncode(userId)
-        val photoColumns = linkedSetOf(BuildConfig.SUPABASE_PROFILE_PHOTO_COLUMN).apply {
-            addAll(fallbackPhotoColumns)
-        }
-        val selectColumns = linkedSetOf("first_name", "last_name", "full_name").apply {
-            addAll(photoColumns)
-        }.joinToString(",")
+        val photoColumn = BuildConfig.SUPABASE_PROFILE_PHOTO_COLUMN
+        // PostgREST returns 400 if any column in `select` does not exist; do not bundle fallback names here.
+        val selectColumns = listOf("first_name", "last_name", "full_name", photoColumn).joinToString(",")
 
         val url = "$supabaseUrl/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}" +
             "?$userIdColumn=eq.$encodedUserId&select=$selectColumns&limit=1"
@@ -341,7 +338,8 @@ class SupabaseService {
         val fullName = firstRow.optString("full_name").ifBlank {
             listOf(firstName, lastName).filter { it.isNotBlank() }.joinToString(" ")
         }
-        val avatarUrl = firstRow.optString(*photoColumns.toTypedArray()).ifBlank { "" }.ifBlank { null }
+        val avatarUrl = firstRow.optString(photoColumn, *fallbackPhotoColumns.toTypedArray())
+            .ifBlank { null }
 
         return ApiResult.Success(
             ProfileRecord(
@@ -475,6 +473,333 @@ class SupabaseService {
                 ApiResult.Success(mapVerificationStatus(row))
             }
         }
+
+    suspend fun fetchElections(accessToken: String? = null): ApiResult<List<ElectionRecord>> =
+        withContext(Dispatchers.IO) {
+            runApiCall {
+                val url = "$supabaseUrl/rest/v1/elections" +
+                    "?select=id,name,region,start_time,end_time,status,image_url,is_deleted" +
+                    "&is_deleted=eq.false&order=start_time.asc"
+                val response = restApi.fetchRows(url, supabaseAnonKey, bearer(accessToken))
+                if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+                val elections = response.body().orEmpty().mapNotNull { mapElectionRow(it) }
+                val counts = elections.map { election ->
+                    countCandidatesForElection(election.id, accessToken)
+                }
+                ApiResult.Success(
+                    elections.mapIndexed { index, election ->
+                        election.copy(candidateCount = counts[index])
+                    }
+                )
+            }
+        }
+
+    suspend fun fetchElection(electionId: String, accessToken: String? = null): ApiResult<ElectionRecord?> =
+        withContext(Dispatchers.IO) {
+            runApiCall {
+                val encodedId = urlEncode(electionId)
+                val url = "$supabaseUrl/rest/v1/elections" +
+                    "?select=id,name,region,start_time,end_time,status,image_url,is_deleted" +
+                    "&id=eq.$encodedId&is_deleted=eq.false&limit=1"
+                val response = restApi.fetchRows(url, supabaseAnonKey, bearer(accessToken))
+                if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+                val row = response.body().orEmpty().firstOrNull() ?: return@runApiCall ApiResult.Success(null)
+                val election = mapElectionRow(row) ?: return@runApiCall ApiResult.Success(null)
+                ApiResult.Success(election.copy(candidateCount = countCandidatesForElection(election.id, accessToken)))
+            }
+        }
+
+    suspend fun fetchCandidatesByElection(
+        electionId: String,
+        accessToken: String? = null
+    ): ApiResult<List<CandidateRecord>> = withContext(Dispatchers.IO) {
+        runApiCall {
+            val encodedElectionId = urlEncode(electionId)
+            val url = "$supabaseUrl/rest/v1/candidates" +
+                "?select=id,election_id,name,position,party,photo_url,education,experience,bio,display_order" +
+                "&election_id=eq.$encodedElectionId&order=display_order.asc"
+            val response = restApi.fetchRows(url, supabaseAnonKey, bearer(accessToken))
+            if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+            ApiResult.Success(response.body().orEmpty().mapNotNull { mapCandidateRow(it, electionId) })
+        }
+    }
+
+    suspend fun fetchCandidate(candidateId: String, accessToken: String? = null): ApiResult<CandidateRecord?> =
+        withContext(Dispatchers.IO) {
+            runApiCall {
+                val encodedId = urlEncode(candidateId)
+                val url = "$supabaseUrl/rest/v1/candidates" +
+                    "?select=id,election_id,name,position,party,photo_url,education,experience,bio,display_order" +
+                    "&id=eq.$encodedId&limit=1"
+                val response = restApi.fetchRows(url, supabaseAnonKey, bearer(accessToken))
+                if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+                val row = response.body().orEmpty().firstOrNull()
+                    ?: return@runApiCall ApiResult.Success(null)
+                ApiResult.Success(mapCandidateRow(row, row.optString("election_id", "electionId")))
+            }
+        }
+
+    suspend fun searchElections(query: String, accessToken: String? = null): ApiResult<List<ElectionRecord>> =
+        withContext(Dispatchers.IO) {
+            when (val all = fetchElections(accessToken)) {
+                is ApiResult.Failure -> all
+                is ApiResult.Success -> {
+                    val q = query.trim().lowercase()
+                    if (q.isBlank()) return@withContext all
+                    ApiResult.Success(
+                        all.data.filter {
+                            it.name.lowercase().contains(q) || it.region.lowercase().contains(q)
+                        }
+                    )
+                }
+            }
+        }
+
+    suspend fun searchCandidates(query: String, accessToken: String? = null): ApiResult<List<CandidateRecord>> =
+        withContext(Dispatchers.IO) {
+            runApiCall {
+                val url = "$supabaseUrl/rest/v1/candidates" +
+                    "?select=id,election_id,name,position,party,photo_url,education,experience,bio,display_order" +
+                    "&order=display_order.asc&limit=50"
+                val response = restApi.fetchRows(url, supabaseAnonKey, bearer(accessToken))
+                if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+                val q = query.trim().lowercase()
+                val items = response.body().orEmpty().mapNotNull { mapCandidateRow(it, "") }
+                ApiResult.Success(
+                    if (q.isBlank()) items
+                    else items.filter {
+                        it.fullName.lowercase().contains(q) || it.party.lowercase().contains(q)
+                    }
+                )
+            }
+        }
+
+    suspend fun resolveNumericUserId(
+        authUserId: String,
+        email: String?,
+        accessToken: String
+    ): ApiResult<String?> = withContext(Dispatchers.IO) {
+        runApiCall {
+            val encodedAuthId = urlEncode(authUserId)
+            val byAuthUrl = "$supabaseUrl/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}" +
+                "?auth_user_id=eq.$encodedAuthId&select=id&limit=1"
+            val byAuth = restApi.fetchRows(byAuthUrl, supabaseAnonKey, bearer(accessToken))
+            if (byAuth.isSuccessful) {
+                val id = byAuth.body().orEmpty().firstOrNull()?.optString("id")
+                if (!id.isNullOrBlank()) return@runApiCall ApiResult.Success(id)
+            }
+            val trimmedEmail = email?.trim().orEmpty()
+            if (trimmedEmail.isNotBlank()) {
+                val encodedEmail = urlEncode(trimmedEmail)
+                val byEmailUrl = "$supabaseUrl/rest/v1/${BuildConfig.SUPABASE_PROFILE_TABLE}" +
+                    "?email=eq.$encodedEmail&select=id&limit=1"
+                val byEmail = restApi.fetchRows(byEmailUrl, supabaseAnonKey, bearer(accessToken))
+                if (byEmail.isSuccessful) {
+                    val id = byEmail.body().orEmpty().firstOrNull()?.optString("id")
+                    if (!id.isNullOrBlank()) return@runApiCall ApiResult.Success(id)
+                }
+            }
+            ApiResult.Success(null)
+        }
+    }
+
+    suspend fun castVote(
+        electionId: String,
+        candidateId: String,
+        authUserId: String,
+        email: String?,
+        accessToken: String
+    ): ApiResult<VoteCastResult> = withContext(Dispatchers.IO) {
+        runApiCall {
+            when (val numericResult = resolveNumericUserId(authUserId, email, accessToken)) {
+                is ApiResult.Failure -> return@runApiCall ApiResult.Failure(numericResult.error)
+                is ApiResult.Success -> {
+                    val numericUserId = numericResult.data
+                    if (numericUserId.isNullOrBlank()) {
+                        return@runApiCall ApiResult.Success(
+                            VoteCastResult(
+                                success = false,
+                                reason = "PROFILE_MISSING",
+                                message = "Complete your profile before voting."
+                            )
+                        )
+                    }
+                    castVoteWithNumericUser(
+                        electionId = electionId,
+                        candidateId = candidateId,
+                        numericUserId = numericUserId,
+                        authUserId = authUserId,
+                        accessToken = accessToken
+                    )
+                }
+            }
+        }
+    }
+
+    suspend fun verifyVoteReceipt(receiptId: String, accessToken: String): ApiResult<VoteReceipt> =
+        withContext(Dispatchers.IO) {
+            runApiCall {
+                val encodedId = urlEncode(receiptId)
+                val url = "$supabaseUrl/rest/v1/votes?id=eq.$encodedId&select=id,voted_at&limit=1"
+                val response = restApi.fetchRows(url, supabaseAnonKey, bearer(accessToken))
+                if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+                val found = response.body().orEmpty().isNotEmpty()
+                if (!found) {
+                    return@runApiCall ApiResult.Failure(
+                        ApiFailure(ApiFailureType.NotFound, detail = "Vote receipt not found")
+                    )
+                }
+                ApiResult.Success(
+                    VoteReceipt(
+                        receiptId = receiptId,
+                        status = "VERIFIED",
+                        message = "Your vote was recorded successfully."
+                    )
+                )
+            }
+        }
+
+    private suspend fun castVoteWithNumericUser(
+        electionId: String,
+        candidateId: String,
+        numericUserId: String,
+        authUserId: String,
+        accessToken: String
+    ): ApiResult<VoteCastResult> {
+        val encodedElectionId = urlEncode(electionId)
+        val encodedNumericUserId = urlEncode(numericUserId)
+        val encodedAuthUserId = urlEncode(authUserId)
+
+        val existingVoteUrl = "$supabaseUrl/rest/v1/votes" +
+            "?user_id=eq.$encodedNumericUserId&election_id=eq.$encodedElectionId&select=id&limit=1"
+        val existingVote = restApi.fetchRows(existingVoteUrl, supabaseAnonKey, bearer(accessToken))
+        if (!existingVote.isSuccessful) {
+            return ApiResult.Failure(mapFailure(existingVote))
+        }
+        if (existingVote.body().orEmpty().isNotEmpty()) {
+            return ApiResult.Success(
+                VoteCastResult(success = false, reason = "ALREADY_VOTED", message = "You already voted in this election.")
+            )
+        }
+
+        val electionUrl = "$supabaseUrl/rest/v1/elections?id=eq.$encodedElectionId&select=status&limit=1"
+        val electionResponse = restApi.fetchRows(electionUrl, supabaseAnonKey, bearer(accessToken))
+        if (!electionResponse.isSuccessful) {
+            return ApiResult.Failure(mapFailure(electionResponse))
+        }
+        val electionStatus = electionResponse.body().orEmpty().firstOrNull()
+            ?.optString("status")
+            .orEmpty()
+            .uppercase()
+        if (electionStatus != "ACTIVE") {
+            return ApiResult.Success(
+                VoteCastResult(success = false, reason = "NOT_ACTIVE", message = "This election is not open for voting.")
+            )
+        }
+
+        val verificationUrl = "$supabaseUrl/rest/v1/verifications" +
+            "?user_id=eq.$encodedAuthUserId&select=status&order=submitted_at.desc&limit=1"
+        val verificationResponse = restApi.fetchRows(verificationUrl, supabaseAnonKey, bearer(accessToken))
+        if (!verificationResponse.isSuccessful) {
+            return ApiResult.Failure(mapFailure(verificationResponse))
+        }
+        val verificationStatus = verificationResponse.body().orEmpty().firstOrNull()
+            ?.optString("status")
+            .orEmpty()
+            .uppercase()
+        if (verificationStatus != "APPROVED") {
+            return ApiResult.Success(
+                VoteCastResult(
+                    success = false,
+                    reason = "NOT_VERIFIED",
+                    message = "Voter verification must be approved before voting."
+                )
+            )
+        }
+
+        val insertResponse = restApi.insertRowReturning(
+            url = "$supabaseUrl/rest/v1/votes",
+            apiKey = supabaseAnonKey,
+            authorization = bearer(accessToken),
+            body = mapOf(
+                "user_id" to numericUserId,
+                "candidate_id" to candidateId,
+                "election_id" to electionId,
+                "voted_at" to java.time.Instant.now().toString()
+            )
+        )
+        if (!insertResponse.isSuccessful) {
+            return ApiResult.Failure(mapFailure(insertResponse))
+        }
+        val voteId = insertResponse.body().orEmpty().firstOrNull()?.optString("id").orEmpty()
+        return ApiResult.Success(
+            VoteCastResult(
+                success = true,
+                receiptId = voteId,
+                message = "Vote submitted successfully."
+            )
+        )
+    }
+
+    private suspend fun countCandidatesForElection(electionId: String, accessToken: String?): Int {
+        val encodedElectionId = urlEncode(electionId)
+        val url = "$supabaseUrl/rest/v1/candidates" +
+            "?election_id=eq.$encodedElectionId&select=id"
+        val response = restApi.fetchRows(url, supabaseAnonKey, bearer(accessToken))
+        return if (response.isSuccessful) response.body().orEmpty().size else 0
+    }
+
+    private fun mapElectionRow(row: Map<String, Any?>): ElectionRecord? {
+        val id = row.optString("id")
+        val name = row.optString("name")
+        if (id.isBlank() || name.isBlank()) return null
+        val deleted = row.optBoolean("is_deleted")
+        if (deleted) return null
+        return ElectionRecord(
+            id = id,
+            name = name,
+            status = row.optString("status").ifBlank { "UPCOMING" },
+            startDate = formatElectionDate(row.optString("start_time", "start_time")),
+            endDate = formatElectionDate(row.optString("end_time", "end_time")),
+            description = row.optString("description", "details"),
+            region = row.optString("region").ifBlank { "National" },
+            imageUrl = row.optNullableString("image_url", "imageUrl"),
+            candidateCount = 0
+        )
+    }
+
+    private fun mapCandidateRow(row: Map<String, Any?>, defaultElectionId: String): CandidateRecord? {
+        val id = row.optString("id")
+        val name = row.optString("name", "full_name", "fullName")
+        if (id.isBlank() || name.isBlank()) return null
+        val electionId = row.optString("election_id", "electionId").ifBlank { defaultElectionId }
+        val platform = row.optString("bio", "platform", "experience")
+        return CandidateRecord(
+            id = id,
+            electionId = electionId,
+            fullName = name,
+            party = row.optString("party", "affiliation"),
+            platform = platform,
+            photoUrl = row.optNullableString("photo_url", "photoUrl"),
+            position = row.optString("position", "office", "role"),
+            education = row.optString("education", "school")
+        )
+    }
+
+    private fun Map<String, Any?>.optNullableString(vararg keys: String): String? {
+        val value = optString(*keys)
+        return value.ifBlank { null }
+    }
+
+    private fun formatElectionDate(raw: String): String {
+        if (raw.isBlank()) return "TBD"
+        return runCatching {
+            val instant = java.time.Instant.parse(raw)
+            java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy", java.util.Locale.ENGLISH)
+                .withZone(java.time.ZoneId.systemDefault())
+                .format(instant)
+        }.getOrElse { raw }
+    }
 
     private fun mapNotificationRow(row: Map<String, Any?>): NotificationItem? {
         val id = row.optString("id")
