@@ -140,5 +140,43 @@
     <string name="article_bookmark">Bookmark</string>
     <string name="article_comments_title">Comments (24)</string>
     <string name="article_comments_placeholder">Join the conversation. Sign in to post comments.</string>
+
+    <string name="home_category_top_stories">Top Stories</string>
+    <string name="home_category_elections">Elections</string>
+    <string name="scope_local">Local</string>
+    <string name="scope_national">National</string>
+    <string name="scope_international">International</string>
+    <string name="see_more">See more</string>
+    <string name="search_title">Search</string>
+    <string name="search_hint">Search articles, elections, candidates</string>
+    <string name="search_no_results">No results found.</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_mark_all_read">Mark all read</string>
+    <string name="notification_comment_reply">%1$s replied to your comment on %2$s</string>
+    <string name="notification_verification_approved">Your verification was approved.</string>
+    <string name="notification_verification_rejected">Your verification was not approved. Reason: %1$s</string>
+    <string name="comments_header">Comments (%1$d)</string>
+    <string name="comment_hint">Write a comment…</string>
+    <string name="post_comment">Post Comment</string>
+    <string name="comment_reply_badge">Reply</string>
+    <string name="election_detail_title">Election Details</string>
+    <string name="view_candidates">View Candidates</string>
+    <string name="vote_now">Vote Now</string>
+    <string name="election_region_unknown">Region not specified</string>
+    <string name="election_candidate_count">%1$d candidates</string>
+    <string name="candidate_profile_title">Candidate Profile</string>
+    <string name="vote_for_candidate">Vote for this Candidate</string>
+    <string name="candidate_bio_label">Bio</string>
+    <string name="candidate_education_label">Education</string>
+    <string name="candidate_position_unknown">Position not listed</string>
+    <string name="candidate_education_unknown">Education not listed</string>
+    <string name="profile_verification_title">Verification Status</string>
+    <string name="verification_verified">Identity Verified</string>
+    <string name="verification_pending">Verification Pending</string>
+    <string name="verification_rejected">Verification Rejected</string>
+    <string name="verification_not_verified">Not Verified</string>
+    <string name="submit_verification">Submit Verification</string>
+    <string name="related_articles_title">Related Articles</string>
+    <string name="delete">Delete</string>
 </resources>
 

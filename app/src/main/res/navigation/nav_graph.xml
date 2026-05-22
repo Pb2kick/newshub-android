@@ -56,13 +56,55 @@
         <action
             android:id="@+id/action_homeFragment_to_electionsFragment"
             app:destination="@id/electionsFragment" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_notificationsFragment"
+            app:destination="@id/notificationsFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.newshub.feature.search.SearchFragment"
+        android:label="@string/search_title"
+        tools:layout="@layout/fragment_search">
+
+        <action
+            android:id="@+id/action_searchFragment_to_newsDetailFragment"
+            app:destination="@id/newsDetailFragment" />
+
+        <action
+            android:id="@+id/action_searchFragment_to_electionDetailFragment"
+            app:destination="@id/electionDetailFragment" />
+
+        <action
+            android:id="@+id/action_searchFragment_to_candidateProfileFragment"
+            app:destination="@id/candidateProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/notificationsFragment"
+        android:name="com.example.newshub.feature.notifications.NotificationsFragment"
+        android:label="@string/notifications_title"
+        tools:layout="@layout/fragment_notifications" />
 
     <fragment
         android:id="@+id/newsDetailFragment"
         android:name="com.example.newshub.feature.news.NewsDetailFragment"
         android:label="@string/news_detail_title"
-        tools:layout="@layout/fragment_news_detail" />
+        tools:layout="@layout/fragment_news_detail">
+
+        <action
+            android:id="@+id/action_newsDetailFragment_to_notificationsFragment"
+            app:destination="@id/notificationsFragment" />
+
+        <action
+            android:id="@+id/action_newsDetailFragment_to_newsDetailFragment"
+            app:destination="@id/newsDetailFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/electionsFragment"
@@ -71,7 +113,18 @@
         tools:layout="@layout/fragment_elections">
 
         <action
-            android:id="@+id/action_electionsFragment_to_candidatesFragment"
+            android:id="@+id/action_electionsFragment_to_electionDetailFragment"
+            app:destination="@id/electionDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/electionDetailFragment"
+        android:name="com.example.newshub.feature.elections.ElectionDetailFragment"
+        android:label="@string/election_detail_title"
+        tools:layout="@layout/fragment_election_detail">
+
+        <action
+            android:id="@+id/action_electionDetailFragment_to_candidatesFragment"
             app:destination="@id/candidatesFragment" />
     </fragment>
 
@@ -82,7 +135,18 @@
         tools:layout="@layout/fragment_candidates">
 
         <action
-            android:id="@+id/action_candidatesFragment_to_voteConfirmFragment"
+            android:id="@+id/action_candidatesFragment_to_candidateProfileFragment"
+            app:destination="@id/candidateProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/candidateProfileFragment"
+        android:name="com.example.newshub.feature.elections.CandidateProfileFragment"
+        android:label="@string/candidate_profile_title"
+        tools:layout="@layout/fragment_candidate_profile">
+
+        <action
+            android:id="@+id/action_candidateProfileFragment_to_voteConfirmFragment"
             app:destination="@id/voteConfirmFragment" />
     </fragment>
 
@@ -113,5 +177,9 @@
             android:id="@+id/action_profileFragment_to_homeFragment"
             app:destination="@id/homeFragment"
             app:popUpTo="@id/homeFragment" />
+
+        <action
+            android:id="@+id/action_profileFragment_to_voteVerificationFragment"
+            app:destination="@id/voteVerificationFragment" />
     </fragment>
 </navigation>

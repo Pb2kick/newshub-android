@@ -3,6 +3,7 @@ package com.example.newshub.network
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -37,5 +38,11 @@ interface SupabaseRestApi {
         @Header("Prefer") prefer: String = "return=minimal",
         @Body body: Map<String, @JvmSuppressWildcards Any?>
     ): Response<Unit>
-}
 
+    @HTTP(method = "DELETE", hasBody = false)
+    suspend fun deleteRow(
+        @Url url: String,
+        @Header("apikey") apiKey: String,
+        @Header("Authorization") authorization: String
+    ): Response<Unit>
+}

@@ -55,13 +55,54 @@
             android:layout_weight="1" />
 
         <ImageButton
-            android:id="@+id/button_refresh"
+            android:id="@+id/button_search"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/news_refresh"
+            android:contentDescription="@string/news_search"
             android:padding="6dp"
             android:src="@android:drawable/ic_menu_search"
+            app:tint="@color/home_text_secondary" />
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp">
+
+            <ImageButton
+                android:id="@+id/button_notifications"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/notifications_title"
+                android:padding="6dp"
+                android:src="@android:drawable/ic_popup_reminder"
+                app:tint="@color/home_text_secondary" />
+
+            <TextView
+                android:id="@+id/badge_notifications"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="top|end"
+                android:background="@drawable/bg_auth_logo"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="3"
+                tools:visibility="visible" />
+        </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/button_refresh"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="6dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/news_refresh"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_menu_rotate"
             app:tint="@color/home_text_secondary" />
 
         <ImageButton
@@ -214,68 +255,86 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/section_header">
 
-        <LinearLayout
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_category"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            app:singleSelection="true"
+            app:selectionRequired="true">
 
-            <TextView
-                android:id="@+id/chip_all"
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_top_stories"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_home_chip_selected"
-                android:paddingStart="12dp"
-                android:paddingTop="5dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="5dp"
-                android:text="@string/home_filter_all"
-                android:textColor="@color/home_primary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:checked="true"
+                android:text="@string/home_category_top_stories" />
 
-            <TextView
-                android:id="@+id/chip_international"
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_politics"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_home_chip_muted"
-                android:paddingStart="12dp"
-                android:paddingTop="5dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="5dp"
-                android:text="@string/home_filter_international"
-                android:textColor="@color/home_text_secondary"
-                android:textSize="12sp" />
+                android:text="@string/home_filter_politics" />
 
-            <TextView
-                android:id="@+id/chip_technology"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_home_chip_muted"
-                android:paddingStart="12dp"
-                android:paddingTop="5dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="5dp"
-                android:text="@string/home_tag_technology"
-                android:textColor="@color/home_text_secondary"
-                android:textSize="12sp" />
-
-            <TextView
+            <com.google.android.material.chip.Chip
                 android:id="@+id/chip_economy"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_home_chip_muted"
-                android:paddingStart="12dp"
-                android:paddingTop="5dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="5dp"
-                android:text="@string/home_tag_economy"
-                android:textColor="@color/home_text_secondary"
-                android:textSize="12sp" />
-        </LinearLayout>
+                android:text="@string/home_tag_economy" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_technology"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/home_tag_technology" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_elections_category"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/home_category_elections" />
+        </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggle_scope"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chip_row"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_scope_local"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/scope_local" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_scope_national"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/scope_national" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_scope_international"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/scope_international" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_news"
@@ -286,11 +345,37 @@
         android:paddingTop="10dp"
         android:paddingEnd="12dp"
         android:paddingBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@id/button_see_more"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toggle_scope"
+        tools:listitem="@layout/item_news_article" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_see_more"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="4dp"
+        android:text="@string/see_more"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/chip_row"
-        tools:listitem="@layout/item_news_article" />
+        app:layout_constraintTop_toBottomOf="@id/recycler_news" />
+
+    <ProgressBar
+        android:id="@+id/progress_see_more"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/button_see_more"
+        app:layout_constraintEnd_toEndOf="@id/button_see_more"
+        app:layout_constraintStart_toStartOf="@id/button_see_more"
+        app:layout_constraintTop_toTopOf="@id/button_see_more" />
 
     <TextView
         android:id="@+id/text_empty"

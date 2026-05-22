@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.newshub.R
 import com.example.newshub.databinding.FragmentCandidatesBinding
+import com.example.newshub.toProfileBundle
 
 class CandidatesFragment : Fragment() {
 
@@ -35,13 +36,10 @@ class CandidatesFragment : Fragment() {
         binding.textTitle.text = if (electionName.isBlank()) getString(R.string.candidates_title) else electionName
 
         adapter = CandidatesAdapter { candidate ->
-            val args = Bundle().apply {
-                putString("electionId", electionId)
-                putString("electionName", electionName)
-                putString("candidateId", candidate.id)
-                putString("candidateName", candidate.fullName)
-            }
-            findNavController().navigate(R.id.action_candidatesFragment_to_voteConfirmFragment, args)
+            findNavController().navigate(
+                R.id.action_candidatesFragment_to_candidateProfileFragment,
+                candidate.toProfileBundle(electionName)
+            )
         }
         binding.recyclerCandidates.adapter = adapter
 

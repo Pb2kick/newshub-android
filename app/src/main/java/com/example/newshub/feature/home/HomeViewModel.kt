@@ -14,10 +14,14 @@ import kotlinx.coroutines.launch
 
 data class HomeUiState(
     val isLoading: Boolean = false,
+    val isLoadingMore: Boolean = false,
     val items: List<NewsArticle> = emptyList(),
+    val hasMore: Boolean = true,
     val emptyMessageRes: Int? = null,
     val messageRes: Int? = null,
-    val locationLabel: String = ""
+    val locationLabel: String = "",
+    val category: String = "Top Stories",
+    val scope: String = "Local"
 )
 
 class HomeViewModel(
@@ -28,41 +32,91 @@ class HomeViewModel(
     private val _uiState = MutableLiveData(HomeUiState())
     val uiState: LiveData<HomeUiState> = _uiState
 
-    fun loadNews(locationLabel: String, lat: Double? = null, lng: Double? = null) {
-        val accessToken = sessionStore.getAccessToken()
-        if (accessToken.isNullOrBlank()) {
-            _uiState.value = _uiState.value?.copy(messageRes = R.string.error_unauthorized)
-            return
-        }
+    private var currentPage = 0
+    private var lastLat: Double? = null
+    private var lastLng: Double? = null
+    private var lastLocationLabel = ""
 
-        _uiState.value = _uiState.value?.copy(isLoading = true, locationLabel = locationLabel)
+    fun loadNews(locationLabel: String, lat: Double?, lng: Double?, category: String, scope: String) {
+        if (!ensureSession()) return
+        currentPage = 0
+        lastLat = lat
+        lastLng = lng
+        lastLocationLabel = locationLabel
+        _uiState.value = _uiState.value?.copy(
+            isLoading = true,
+            isLoadingMore = false,
+            locationLabel = locationLabel,
+            category = category,
+            scope = scope,
+            hasMore = true
+        )
+        fetchPage(replace = true)
+    }
+
+    fun loadMore() {
+        val state = _uiState.value ?: return
+        if (state.isLoading || state.isLoadingMore || !state.hasMore) return
+        if (!ensureSession()) return
+        currentPage += 1
+        _uiState.value = state.copy(isLoadingMore = true)
+        fetchPage(replace = false)
+    }
+
+    fun consumeMessage() {
+        _uiState.value = _uiState.value?.copy(messageRes = null)
+    }
+
+    private fun fetchPage(replace: Boolean) {
+        val state = _uiState.value ?: return
         viewModelScope.launch {
-            when (val result = backendService.fetchNews(lat = lat, lng = lng, location = locationLabel)) {
+            when (
+                val result = backendService.fetchNews(
+                    lat = lastLat,
+                    lng = lastLng,
+                    location = lastLocationLabel,
+                    category = state.category,
+                    scope = state.scope,
+                    page = currentPage
+                )
+            ) {
                 is ApiResult.Success -> {
-                    _uiState.value = _uiState.value?.copy(
+                    val merged = if (replace) {
+                        result.data.articles
+                    } else {
+                        state.items + result.data.articles
+                    }
+                    _uiState.value = state.copy(
                         isLoading = false,
-                        items = result.data,
-                        emptyMessageRes = if (result.data.isEmpty()) R.string.news_empty else null,
+                        isLoadingMore = false,
+                        items = merged,
+                        hasMore = result.data.hasMore,
+                        emptyMessageRes = if (merged.isEmpty()) R.string.news_empty else null,
                         messageRes = null,
-                        locationLabel = locationLabel
+                        locationLabel = lastLocationLabel
                     )
                 }
 
                 is ApiResult.Failure -> {
-                    _uiState.value = _uiState.value?.copy(
+                    _uiState.value = state.copy(
                         isLoading = false,
-                        items = emptyList(),
-                        emptyMessageRes = R.string.news_empty,
+                        isLoadingMore = false,
+                        items = if (replace) emptyList() else state.items,
+                        emptyMessageRes = if (replace) R.string.news_empty else state.emptyMessageRes,
                         messageRes = UiErrorMapper.toMessageRes(result.error),
-                        locationLabel = locationLabel
+                        locationLabel = lastLocationLabel
                     )
                 }
             }
         }
     }
 
-    fun consumeMessage() {
-        _uiState.value = _uiState.value?.copy(messageRes = null)
+    private fun ensureSession(): Boolean {
+        val accessToken = sessionStore.getAccessToken()
+        if (accessToken.isNullOrBlank()) {
+            _uiState.value = _uiState.value?.copy(messageRes = R.string.error_unauthorized)
+            return false
+        }
+        return true
     }
 }
-

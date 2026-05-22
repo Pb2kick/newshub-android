@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.newshub.R
 import com.example.newshub.databinding.FragmentElectionsBinding
+import com.example.newshub.toDetailBundle
 
 class ElectionsFragment : Fragment() {
 
@@ -31,11 +32,10 @@ class ElectionsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         adapter = ElectionsAdapter { election ->
-            val args = Bundle().apply {
-                putString("electionId", election.id)
-                putString("electionName", election.name)
-            }
-            findNavController().navigate(R.id.action_electionsFragment_to_candidatesFragment, args)
+            findNavController().navigate(
+                R.id.action_electionsFragment_to_electionDetailFragment,
+                election.toDetailBundle()
+            )
         }
         binding.recyclerElections.adapter = adapter
 

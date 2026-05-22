@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.newshub.BackendService
+import com.example.newshub.NewsArticle
 import com.example.newshub.NewsArticleDetail
 import com.example.newshub.R
 import com.example.newshub.UiErrorMapper
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 data class NewsDetailUiState(
     val isLoading: Boolean = false,
     val detail: NewsArticleDetail? = null,
+    val relatedArticles: List<NewsArticle> = emptyList(),
     val messageRes: Int? = null
 )
 
@@ -43,7 +45,7 @@ class NewsDetailViewModel(
         viewModelScope.launch {
             when (val result = backendService.fetchArticleContent(url)) {
                 is ApiResult.Success -> {
-                    _uiState.value = NewsDetailUiState(detail = result.data)
+                    _uiState.value = _uiState.value?.copy(isLoading = false, detail = result.data)
                 }
 
                 is ApiResult.Failure -> {
@@ -62,8 +64,20 @@ class NewsDetailViewModel(
         }
     }
 
+    fun loadRelated(category: String, excludeArticleId: String) {
+        if (category.isBlank()) return
+        viewModelScope.launch {
+            when (val result = backendService.fetchNews(category = category, scope = "National", page = 0, size = 4)) {
+                is ApiResult.Success -> {
+                    val filtered = result.data.articles.filter { it.id != excludeArticleId }
+                    _uiState.value = _uiState.value?.copy(relatedArticles = filtered)
+                }
+                is ApiResult.Failure -> Unit
+            }
+        }
+    }
+
     fun consumeMessage() {
         _uiState.value = _uiState.value?.copy(messageRes = null)
     }
 }
-

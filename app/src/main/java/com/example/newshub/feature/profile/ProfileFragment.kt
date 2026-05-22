@@ -7,6 +7,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.newshub.feature.profile.VerificationStatus
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,6 +20,7 @@ import com.example.newshub.BuildConfig
 import com.example.newshub.R
 import com.example.newshub.core.session.AndroidSessionStore
 import com.example.newshub.databinding.FragmentProfileBinding
+import androidx.core.content.ContextCompat
 
 class ProfileFragment : Fragment(), ProfileContract.View {
 
@@ -107,6 +109,10 @@ class ProfileFragment : Fragment(), ProfileContract.View {
                 confirmPassword = binding.editConfirmNewPassword.text?.toString().orEmpty()
             )
         }
+
+        binding.buttonSubmitVerification.setOnClickListener {
+            presenter.navigateToVerification()
+        }
     }
 
     override fun showLoading(isLoading: Boolean) {
@@ -155,6 +161,49 @@ class ProfileFragment : Fragment(), ProfileContract.View {
         binding.editCurrentPassword.text?.clear()
         binding.editNewPassword.text?.clear()
         binding.editConfirmNewPassword.text?.clear()
+    }
+
+    override fun showVerificationStatus(status: VerificationStatus) {
+        binding.textVerificationReason.visibility = View.GONE
+        binding.buttonSubmitVerification.visibility = View.GONE
+
+        when (status) {
+            VerificationStatus.Verified -> {
+                binding.imageVerificationStatus.setImageResource(android.R.drawable.checkbox_on_background)
+                binding.imageVerificationStatus.setColorFilter(
+                    ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
+                )
+                binding.textVerificationStatus.text = getString(R.string.verification_verified)
+            }
+            VerificationStatus.Pending -> {
+                binding.imageVerificationStatus.setImageResource(android.R.drawable.ic_menu_recent_history)
+                binding.imageVerificationStatus.setColorFilter(
+                    ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)
+                )
+                binding.textVerificationStatus.text = getString(R.string.verification_pending)
+            }
+            is VerificationStatus.Rejected -> {
+                binding.imageVerificationStatus.setImageResource(android.R.drawable.ic_delete)
+                binding.imageVerificationStatus.setColorFilter(
+                    ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark)
+                )
+                binding.textVerificationStatus.text = getString(R.string.verification_rejected)
+                binding.textVerificationReason.text = status.reason
+                binding.textVerificationReason.visibility = View.VISIBLE
+            }
+            VerificationStatus.NotSubmitted -> {
+                binding.imageVerificationStatus.setImageResource(android.R.drawable.ic_menu_info_details)
+                binding.imageVerificationStatus.setColorFilter(
+                    ContextCompat.getColor(requireContext(), R.color.home_muted)
+                )
+                binding.textVerificationStatus.text = getString(R.string.verification_not_verified)
+                binding.buttonSubmitVerification.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    override fun navigateToVerification() {
+        findNavController().navigate(R.id.action_profileFragment_to_voteVerificationFragment)
     }
 
     private fun loadAvatar(rawAvatarUrl: String?) {

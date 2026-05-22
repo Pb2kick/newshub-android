@@ -5,6 +5,9 @@ import com.example.newshub.network.ApiFailure
 import com.example.newshub.network.ApiFailureType
 import com.example.newshub.network.ApiResult
 import com.example.newshub.network.ErrorMapper
+import com.example.newshub.feature.news.CommentItem
+import com.example.newshub.feature.notifications.NotificationItem
+import com.example.newshub.feature.profile.VerificationStatus
 import com.example.newshub.network.model.AuthTokenRequest
 import com.example.newshub.network.model.ChangePasswordRequest
 import com.example.newshub.network.model.SignUpRequest
@@ -350,6 +353,179 @@ class SupabaseService {
         )
     }
 
+
+    suspend fun fetchNotifications(userId: String, accessToken: String): ApiResult<List<NotificationItem>> =
+        withContext(Dispatchers.IO) {
+            runApiCall {
+                val encodedUserId = urlEncode(userId)
+                val url = "$supabaseUrl/rest/v1/notifications" +
+                    "?recipient_user_id=eq.$encodedUserId&order=created_at.desc&limit=50"
+                val response = restApi.fetchRows(url, supabaseAnonKey, bearer(accessToken))
+                if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+                val items = response.body().orEmpty().mapNotNull { mapNotificationRow(it) }
+                ApiResult.Success(items)
+            }
+        }
+
+    suspend fun markNotificationRead(notificationId: String, accessToken: String): ApiResult<Unit> =
+        withContext(Dispatchers.IO) {
+            runApiCall {
+                val encodedId = urlEncode(notificationId)
+                val response = restApi.patchRows(
+                    url = "$supabaseUrl/rest/v1/notifications?id=eq.$encodedId",
+                    apiKey = supabaseAnonKey,
+                    authorization = bearer(accessToken),
+                    body = mapOf("read" to true)
+                )
+                if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+                ApiResult.Success(Unit)
+            }
+        }
+
+    suspend fun markAllNotificationsRead(userId: String, accessToken: String): ApiResult<Unit> =
+        withContext(Dispatchers.IO) {
+            runApiCall {
+                val encodedUserId = urlEncode(userId)
+                val response = restApi.patchRows(
+                    url = "$supabaseUrl/rest/v1/notifications?recipient_user_id=eq.$encodedUserId",
+                    apiKey = supabaseAnonKey,
+                    authorization = bearer(accessToken),
+                    body = mapOf("read" to true)
+                )
+                if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+                ApiResult.Success(Unit)
+            }
+        }
+
+    suspend fun deleteNotification(notificationId: String, accessToken: String): ApiResult<Unit> =
+        withContext(Dispatchers.IO) {
+            runApiCall {
+                val encodedId = urlEncode(notificationId)
+                val response = restApi.deleteRow(
+                    url = "$supabaseUrl/rest/v1/notifications?id=eq.$encodedId",
+                    apiKey = supabaseAnonKey,
+                    authorization = bearer(accessToken)
+                )
+                if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+                ApiResult.Success(Unit)
+            }
+        }
+
+    suspend fun fetchComments(articleId: String, accessToken: String): ApiResult<List<CommentItem>> =
+        withContext(Dispatchers.IO) {
+            runApiCall {
+                val encodedArticleId = urlEncode(articleId)
+                val url = "$supabaseUrl/rest/v1/article_comments" +
+                    "?article_id=eq.$encodedArticleId&order=created_at.asc&limit=50"
+                val response = restApi.fetchRows(url, supabaseAnonKey, bearer(accessToken))
+                if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+                val items = response.body().orEmpty().mapNotNull { mapCommentRow(it) }
+                ApiResult.Success(items)
+            }
+        }
+
+    suspend fun postComment(
+        articleId: String,
+        userId: String,
+        displayName: String,
+        content: String,
+        accessToken: String
+    ): ApiResult<Unit> = withContext(Dispatchers.IO) {
+        runApiCall {
+            val response = restApi.insertRow(
+                url = "$supabaseUrl/rest/v1/article_comments",
+                apiKey = supabaseAnonKey,
+                authorization = bearer(accessToken),
+                body = mapOf(
+                    "article_id" to articleId,
+                    "user_id" to userId,
+                    "display_name" to displayName,
+                    "content" to content.trim()
+                )
+            )
+            if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+            ApiResult.Success(Unit)
+        }
+    }
+
+    suspend fun deleteComment(commentId: String, accessToken: String): ApiResult<Unit> =
+        withContext(Dispatchers.IO) {
+            runApiCall {
+                val encodedId = urlEncode(commentId)
+                val response = restApi.deleteRow(
+                    url = "$supabaseUrl/rest/v1/article_comments?id=eq.$encodedId",
+                    apiKey = supabaseAnonKey,
+                    authorization = bearer(accessToken)
+                )
+                if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+                ApiResult.Success(Unit)
+            }
+        }
+
+    suspend fun fetchLatestVerification(userId: String, accessToken: String): ApiResult<VerificationStatus> =
+        withContext(Dispatchers.IO) {
+            runApiCall {
+                val encodedUserId = urlEncode(userId)
+                val url = "$supabaseUrl/rest/v1/verifications" +
+                    "?user_id=eq.$encodedUserId&order=submitted_at.desc&limit=1"
+                val response = restApi.fetchRows(url, supabaseAnonKey, bearer(accessToken))
+                if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+                val row = response.body().orEmpty().firstOrNull()
+                    ?: return@runApiCall ApiResult.Success(VerificationStatus.NotSubmitted)
+                ApiResult.Success(mapVerificationStatus(row))
+            }
+        }
+
+    private fun mapNotificationRow(row: Map<String, Any?>): NotificationItem? {
+        val id = row.optString("id")
+        if (id.isBlank()) return null
+        return NotificationItem(
+            id = id,
+            type = row.optString("type"),
+            actorName = row.optString("actor_name", "actorName"),
+            articleTitle = row.optString("article_title", "articleTitle").ifBlank { null },
+            rejectionReason = row.optString("rejection_reason", "rejectionReason").ifBlank { null },
+            createdAt = row.optString("created_at", "createdAt"),
+            isRead = row.optBoolean("read", "is_read")
+        )
+    }
+
+    private fun mapCommentRow(row: Map<String, Any?>): CommentItem? {
+        val id = row.optString("id")
+        if (id.isBlank()) return null
+        val parent = row.optString("parent_id", "parentId").ifBlank { null }
+        return CommentItem(
+            id = id,
+            articleId = row.optString("article_id", "articleId"),
+            userId = row.optString("user_id", "userId"),
+            displayName = row.optString("display_name", "displayName"),
+            content = row.optString("content"),
+            parentId = parent,
+            createdAt = row.optString("created_at", "createdAt")
+        )
+    }
+
+    private fun mapVerificationStatus(row: Map<String, Any?>): VerificationStatus {
+        return when (row.optString("status").uppercase()) {
+            "APPROVED", "VERIFIED" -> VerificationStatus.Verified
+            "PENDING" -> VerificationStatus.Pending
+            "REJECTED" -> VerificationStatus.Rejected(
+                row.optString("rejection_reason", "rejectionReason").ifBlank { "No reason provided." }
+            )
+            else -> VerificationStatus.NotSubmitted
+        }
+    }
+
+    private fun Map<String, Any?>.optBoolean(vararg keys: String): Boolean {
+        for (key in keys) {
+            when (val value = this[key]) {
+                is Boolean -> return value
+                is String -> return value.equals("true", ignoreCase = true)
+                is Number -> return value.toInt() != 0
+            }
+        }
+        return false
+    }
 
     private fun Map<String, Any?>.optString(vararg keys: String): String {
         for (key in keys) {

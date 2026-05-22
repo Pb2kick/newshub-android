@@ -10,6 +10,8 @@ interface ProfileContract {
         fun renderName(firstName: String, lastName: String, fullName: String)
         fun renderAvatar(avatarUrl: String?)
         fun clearPasswordInputs()
+        fun showVerificationStatus(status: VerificationStatus)
+        fun navigateToVerification()
     }
 
     interface Presenter {
@@ -23,6 +25,7 @@ interface ProfileContract {
         fun onNameChanged(firstName: String, lastName: String)
         fun onSaveNameClicked(firstName: String, lastName: String)
         fun onUpdatePasswordClicked(currentPassword: String, newPassword: String, confirmPassword: String)
+        fun navigateToVerification()
     }
 }
 

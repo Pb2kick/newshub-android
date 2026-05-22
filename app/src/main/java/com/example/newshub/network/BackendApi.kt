@@ -21,7 +21,19 @@ interface BackendApi {
     suspend fun fetchNews(
         @Query("lat") lat: Double? = null,
         @Query("lng") lng: Double? = null,
-        @Query("location") location: String? = null
+        @Query("location") location: String? = null,
+        @Query("category") category: String? = null,
+        @Query("scope") scope: String? = null,
+        @Query("page") page: Int? = null,
+        @Query("size") size: Int? = null
+    ): Response<JsonElement>
+
+    @GET("api/news/search")
+    suspend fun searchNews(
+        @Query("q") query: String,
+        @Query("location") location: String? = null,
+        @Query("scope") scope: String? = null,
+        @Query("limit") limit: Int = 5
     ): Response<JsonElement>
 
     @GET("api/news/content")
@@ -32,9 +44,31 @@ interface BackendApi {
     @GET("api/elections")
     suspend fun fetchElections(): Response<JsonElement>
 
+    @GET("api/elections/search")
+    suspend fun searchElections(
+        @Query("q") query: String,
+        @Query("limit") limit: Int = 5
+    ): Response<JsonElement>
+
+    @GET("api/elections/{electionId}")
+    suspend fun fetchElection(
+        @Path("electionId") electionId: String
+    ): Response<JsonElement>
+
     @GET("api/elections/{electionId}/candidates")
     suspend fun fetchCandidates(
         @Path("electionId") electionId: String
+    ): Response<JsonElement>
+
+    @GET("api/candidates/search")
+    suspend fun searchCandidates(
+        @Query("q") query: String,
+        @Query("limit") limit: Int = 5
+    ): Response<JsonElement>
+
+    @GET("api/candidates/{candidateId}")
+    suspend fun fetchCandidate(
+        @Path("candidateId") candidateId: String
     ): Response<JsonElement>
 
     @POST("api/votes")
@@ -49,4 +83,3 @@ interface BackendApi {
         @Header("Authorization") authorization: String
     ): Response<JsonElement>
 }
-

@@ -7,8 +7,10 @@ import com.example.newshub.UiErrorMapper
 import com.example.newshub.core.session.SessionStore
 import com.example.newshub.feature.auth.data.AuthRepository
 import com.example.newshub.feature.auth.data.SupabaseAuthRepository
+import com.example.newshub.SupabaseService
 import com.example.newshub.feature.profile.data.ProfileRepository
 import com.example.newshub.feature.profile.data.SupabaseProfileRepository
+import kotlinx.coroutines.withContext
 import com.example.newshub.network.ApiFailureType
 import com.example.newshub.network.ApiResult
 import kotlinx.coroutines.CoroutineScope
@@ -20,7 +22,8 @@ import kotlinx.coroutines.launch
 class ProfilePresenter(
     private val sessionStore: SessionStore,
     private val authRepository: AuthRepository = SupabaseAuthRepository(),
-    private val profileRepository: ProfileRepository = SupabaseProfileRepository()
+    private val profileRepository: ProfileRepository = SupabaseProfileRepository(),
+    private val supabaseService: SupabaseService = SupabaseService()
 ) : ProfileContract.Presenter {
 
     private var view: ProfileContract.View? = null
@@ -91,7 +94,23 @@ class ProfilePresenter(
 
                 is ApiResult.Failure -> handleFailure(profileResult)
             }
+
+            loadVerificationStatus(effectiveUserId, accessToken)
             view?.showLoading(false)
+        }
+    }
+
+    private suspend fun loadVerificationStatus(userId: String, accessToken: String) {
+        if (!supabaseService.isConfigured) {
+            view?.showVerificationStatus(VerificationStatus.NotSubmitted)
+            return
+        }
+        val result = withContext(Dispatchers.IO) {
+            supabaseService.fetchLatestVerification(userId, accessToken)
+        }
+        when (result) {
+            is ApiResult.Success -> view?.showVerificationStatus(result.data)
+            is ApiResult.Failure -> view?.showVerificationStatus(VerificationStatus.NotSubmitted)
         }
     }
 
@@ -198,6 +217,10 @@ class ProfilePresenter(
                 is ApiResult.Failure -> handleFailure(result)
             }
         }
+    }
+
+    override fun navigateToVerification() {
+        view?.navigateToVerification()
     }
 
     override fun onUpdatePasswordClicked(currentPassword: String, newPassword: String, confirmPassword: String) {

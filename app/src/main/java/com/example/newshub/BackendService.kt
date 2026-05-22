@@ -26,6 +26,12 @@ data class NewsArticle(
     val articleUrl: String?
 )
 
+data class NewsPageResult(
+    val articles: List<NewsArticle>,
+    val hasMore: Boolean,
+    val page: Int
+)
+
 data class NewsArticleDetail(
     val title: String,
     val source: String,
@@ -40,7 +46,10 @@ data class ElectionRecord(
     val status: String,
     val startDate: String,
     val endDate: String,
-    val description: String
+    val description: String,
+    val region: String = "",
+    val imageUrl: String? = null,
+    val candidateCount: Int = 0
 )
 
 data class CandidateRecord(
@@ -49,7 +58,9 @@ data class CandidateRecord(
     val fullName: String,
     val party: String,
     val platform: String,
-    val photoUrl: String?
+    val photoUrl: String?,
+    val position: String = "",
+    val education: String = ""
 )
 
 data class VoteReceipt(
@@ -66,30 +77,55 @@ class BackendService {
     val isConfigured: Boolean
         get() = backendBaseUrl.isNotBlank()
 
-    suspend fun fetchNews(lat: Double?, lng: Double?, location: String?): ApiResult<List<NewsArticle>> = withContext(Dispatchers.IO) {
+    suspend fun fetchNews(
+        lat: Double?,
+        lng: Double?,
+        location: String?,
+        category: String = "Top Stories",
+        scope: String = "Local",
+        page: Int = 0,
+        size: Int = 4
+    ): ApiResult<NewsPageResult> = withContext(Dispatchers.IO) {
         runApiCall {
-            val response = api.fetchNews(lat = lat, lng = lng, location = location)
+            val response = api.fetchNews(
+                lat = lat,
+                lng = lng,
+                location = location,
+                category = category,
+                scope = scope,
+                page = page,
+                size = size
+            )
             if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+            ApiResult.Success(parseNewsPage(response.body(), page))
+        }
+    }
 
-            val payload = response.body()
-            val rows = payload.asFlexibleArray("data", "items", "news", "articles")
-            val articles = rows.mapNotNull { row ->
-                val title = row.optString("title", "headline")
-                if (title.isBlank()) return@mapNotNull null
-                NewsArticle(
-                    id = row.optString("id", "newsId", "uuid").ifBlank { title.hashCode().toString() },
-                    title = title,
-                    summary = row.optString("summary", "description", "snippet", "excerpt", "content"),
-                    source = row.optString("source", "author", "publisher", "sourceType").ifBlank { "NewsHub" },
-                    author = row.optString("author", "publisher", "source").ifBlank { "NewsHub" },
-                    category = row.optString("category", "section", "topic").ifBlank { "Top Stories" },
-                    publishedAt = row.optString("publishedAt", "published_at", "date"),
-                    readTime = row.optString("readTime", "read_time", "readingTime").ifBlank { "3 min read" },
-                    imageUrl = row.optNullableString("imageUrl", "image_url", "thumbnail", "image"),
-                    articleUrl = row.optNullableString("url", "articleUrl", "link", "sourceUrl")
-                )
-            }
-            ApiResult.Success(articles)
+    suspend fun searchNews(
+        query: String,
+        location: String?,
+        scope: String?
+    ): ApiResult<List<NewsArticle>> = withContext(Dispatchers.IO) {
+        runApiCall {
+            val response = api.searchNews(query = query, location = location, scope = scope)
+            if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+            ApiResult.Success(parseArticles(response.body()))
+        }
+    }
+
+    suspend fun searchElections(query: String): ApiResult<List<ElectionRecord>> = withContext(Dispatchers.IO) {
+        runApiCall {
+            val response = api.searchElections(query = query)
+            if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+            ApiResult.Success(parseElections(response.body()))
+        }
+    }
+
+    suspend fun searchCandidates(query: String): ApiResult<List<CandidateRecord>> = withContext(Dispatchers.IO) {
+        runApiCall {
+            val response = api.searchCandidates(query = query)
+            if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+            ApiResult.Success(parseCandidates(response.body(), defaultElectionId = ""))
         }
     }
 
@@ -117,23 +153,21 @@ class BackendService {
         runApiCall {
             val response = api.fetchElections()
             if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+            ApiResult.Success(parseElections(response.body()))
+        }
+    }
 
-            val payload = response.body()
-            val rows = payload.asFlexibleArray("data", "items", "elections")
-            val elections = rows.mapNotNull { row ->
-                val id = row.optString("id", "electionId", "uuid")
-                val name = row.optString("name", "title")
-                if (id.isBlank() || name.isBlank()) return@mapNotNull null
-                ElectionRecord(
-                    id = id,
-                    name = name,
-                    status = row.optString("status", "state").ifBlank { "OPEN" },
-                    startDate = row.optString("startDate", "start_date"),
-                    endDate = row.optString("endDate", "end_date"),
-                    description = row.optString("description", "details")
-                )
+    suspend fun fetchElection(electionId: String): ApiResult<ElectionRecord> = withContext(Dispatchers.IO) {
+        runApiCall {
+            val response = api.fetchElection(electionId)
+            if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+            val obj = response.body().asObjectOrNull()
+                ?: response.body().asFlexibleArray("data").firstOrNull()
+            if (obj == null) {
+                return@runApiCall ApiResult.Failure(ApiFailure(ApiFailureType.Unknown, detail = "Election not found"))
             }
-            ApiResult.Success(elections)
+            parseElection(obj)?.let { ApiResult.Success(it) }
+                ?: ApiResult.Failure(ApiFailure(ApiFailureType.Unknown, detail = "Election not found"))
         }
     }
 
@@ -141,24 +175,21 @@ class BackendService {
         runApiCall {
             val response = api.fetchCandidates(electionId)
             if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+            ApiResult.Success(parseCandidates(response.body(), defaultElectionId = electionId))
+        }
+    }
 
-            val payload = response.body()
-            val rows = payload.asFlexibleArray("data", "items", "candidates")
-            val candidates = rows.mapNotNull { row ->
-                val id = row.optString("id", "candidateId", "uuid")
-                val fullName = row.optString("fullName", "name", "candidate_name")
-                if (id.isBlank() || fullName.isBlank()) return@mapNotNull null
-
-                CandidateRecord(
-                    id = id,
-                    electionId = row.optString("electionId", "election_id").ifBlank { electionId },
-                    fullName = fullName,
-                    party = row.optString("party", "affiliation"),
-                    platform = row.optString("platform", "bio", "manifesto"),
-                    photoUrl = row.optNullableString("photoUrl", "photo_url", "avatar_url")
-                )
+    suspend fun fetchCandidate(candidateId: String): ApiResult<CandidateRecord> = withContext(Dispatchers.IO) {
+        runApiCall {
+            val response = api.fetchCandidate(candidateId)
+            if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+            val obj = response.body().asObjectOrNull()
+                ?: response.body().asFlexibleArray("data").firstOrNull()
+            if (obj == null) {
+                return@runApiCall ApiResult.Failure(ApiFailure(ApiFailureType.Unknown, detail = "Candidate not found"))
             }
-            ApiResult.Success(candidates)
+            parseCandidate(obj, "")?.let { ApiResult.Success(it) }
+                ?: ApiResult.Failure(ApiFailure(ApiFailureType.Unknown, detail = "Candidate not found"))
         }
     }
 
@@ -197,6 +228,79 @@ class BackendService {
         }
     }
 
+    private fun parseNewsPage(payload: JsonElement?, page: Int): NewsPageResult {
+        val root = payload.asObjectOrNull()
+        val hasMore = root?.optBoolean("hasMore", "has_more") ?: false
+        val resolvedPage = root?.optInt("page")?.takeIf { it >= 0 } ?: page
+        val articles = parseArticles(payload)
+        return NewsPageResult(articles = articles, hasMore = hasMore, page = resolvedPage)
+    }
+
+    private fun parseArticles(payload: JsonElement?): List<NewsArticle> {
+        val rows = payload.asFlexibleArray("data", "items", "news", "articles")
+        return rows.mapNotNull { parseArticle(it) }
+    }
+
+    private fun parseArticle(row: JsonObject): NewsArticle? {
+        val title = row.optString("title", "headline")
+        if (title.isBlank()) return null
+        return NewsArticle(
+            id = row.optString("id", "newsId", "uuid").ifBlank { title.hashCode().toString() },
+            title = title,
+            summary = row.optString("summary", "description", "snippet", "excerpt", "content"),
+            source = row.optString("source", "author", "publisher", "sourceType").ifBlank { "NewsHub" },
+            author = row.optString("author", "publisher", "source").ifBlank { "NewsHub" },
+            category = row.optString("category", "section", "topic").ifBlank { "Top Stories" },
+            publishedAt = row.optString("publishedAt", "published_at", "date"),
+            readTime = row.optString("readTime", "read_time", "readingTime").ifBlank { "3 min read" },
+            imageUrl = row.optNullableString("imageUrl", "image_url", "thumbnail", "image"),
+            articleUrl = row.optNullableString("url", "articleUrl", "link", "sourceUrl")
+        )
+    }
+
+    private fun parseElections(payload: JsonElement?): List<ElectionRecord> {
+        return payload.asFlexibleArray("data", "items", "elections").mapNotNull { parseElection(it) }
+    }
+
+    private fun parseElection(row: JsonObject): ElectionRecord? {
+        val id = row.optString("id", "electionId", "uuid")
+        val name = row.optString("name", "title")
+        if (id.isBlank() || name.isBlank()) return null
+        return ElectionRecord(
+            id = id,
+            name = name,
+            status = row.optString("status", "state").ifBlank { "OPEN" },
+            startDate = row.optString("startDate", "start_date"),
+            endDate = row.optString("endDate", "end_date"),
+            description = row.optString("description", "details"),
+            region = row.optString("region", "location"),
+            imageUrl = row.optNullableString("imageUrl", "image_url", "image"),
+            candidateCount = row.optInt("candidateCount", "candidate_count", "candidatesCount")
+        )
+    }
+
+    private fun parseCandidates(payload: JsonElement?, defaultElectionId: String): List<CandidateRecord> {
+        return payload.asFlexibleArray("data", "items", "candidates").mapNotNull {
+            parseCandidate(it, defaultElectionId)
+        }
+    }
+
+    private fun parseCandidate(row: JsonObject, defaultElectionId: String): CandidateRecord? {
+        val id = row.optString("id", "candidateId", "uuid")
+        val fullName = row.optString("fullName", "name", "candidate_name")
+        if (id.isBlank() || fullName.isBlank()) return null
+        return CandidateRecord(
+            id = id,
+            electionId = row.optString("electionId", "election_id").ifBlank { defaultElectionId },
+            fullName = fullName,
+            party = row.optString("party", "affiliation"),
+            platform = row.optString("platform", "bio", "manifesto"),
+            photoUrl = row.optNullableString("photoUrl", "photo_url", "avatar_url"),
+            position = row.optString("position", "office", "role"),
+            education = row.optString("education", "school")
+        )
+    }
+
     private suspend fun <T> runApiCall(block: suspend () -> ApiResult<T>): ApiResult<T> {
         return try {
             block()
@@ -224,6 +328,34 @@ private fun JsonObject.optString(vararg keys: String): String {
 private fun JsonObject.optNullableString(vararg keys: String): String? {
     val value = optString(*keys)
     return value.ifBlank { null }
+}
+
+private fun JsonObject.optInt(vararg keys: String): Int {
+    for (key in keys) {
+        val value = get(key) ?: continue
+        if (!value.isJsonNull) {
+            return when {
+                value.isJsonPrimitive && value.asJsonPrimitive.isNumber -> value.asInt
+                value.isJsonPrimitive -> value.asString.toIntOrNull() ?: 0
+                else -> 0
+            }
+        }
+    }
+    return 0
+}
+
+private fun JsonObject.optBoolean(vararg keys: String): Boolean {
+    for (key in keys) {
+        val value = get(key) ?: continue
+        if (!value.isJsonNull) {
+            return when {
+                value.isJsonPrimitive && value.asJsonPrimitive.isBoolean -> value.asBoolean
+                value.isJsonPrimitive -> value.asString.equals("true", ignoreCase = true)
+                else -> false
+            }
+        }
+    }
+    return false
 }
 
 private fun JsonElement?.asFlexibleArray(vararg keys: String): List<JsonObject> {
@@ -257,4 +389,3 @@ private fun JsonArray.asObjectList(): List<JsonObject> {
     }
     return list
 }
-

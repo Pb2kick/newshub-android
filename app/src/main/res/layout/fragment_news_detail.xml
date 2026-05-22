@@ -261,31 +261,68 @@
                 android:layout_marginTop="10dp"
                 android:text="@string/news_open_source" />
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/text_comments_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/bg_home_chip_muted"
-                android:orientation="vertical"
-                android:padding="12dp">
+                android:textColor="@color/home_text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="Comments (3)" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/article_comments_title"
-                    android:textColor="@color/home_text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_comments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:itemCount="2"
+                tools:listitem="@layout/item_comment" />
 
-                <TextView
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="@string/comment_hint">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/input_comment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/article_comments_placeholder"
-                    android:textColor="@color/home_text_secondary"
-                    android:textSize="13sp" />
-            </LinearLayout>
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:maxLines="4" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_post_comment"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:enabled="false"
+                android:text="@string/post_comment" />
+
+            <TextView
+                android:id="@+id/text_related_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/related_articles_title"
+                android:textColor="@color/home_text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_related"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:paddingEnd="4dp"
+                tools:listitem="@layout/item_related_article" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
