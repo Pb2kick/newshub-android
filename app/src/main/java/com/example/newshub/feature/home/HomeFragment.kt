@@ -112,6 +112,19 @@ class HomeFragment : Fragment() {
             binding.progressSeeMore.visibility = if (state.isLoadingMore) View.VISIBLE else View.GONE
             binding.buttonSeeMore.text = if (state.isLoadingMore) "" else getString(R.string.see_more)
 
+            // FIX: 72dp padding let items scroll into the "See more" touch band; use 8dp when button visible
+            val bottomPadding = if (showSeeMore) {
+                resources.getDimensionPixelSize(R.dimen.home_list_padding_above_see_more)
+            } else {
+                resources.getDimensionPixelSize(R.dimen.home_list_padding_above_nav)
+            }
+            binding.recyclerNews.setPadding(
+                binding.recyclerNews.paddingLeft,
+                binding.recyclerNews.paddingTop,
+                binding.recyclerNews.paddingRight,
+                bottomPadding
+            )
+
             state.messageRes?.let {
                 Toast.makeText(requireContext(), getString(it), Toast.LENGTH_SHORT).show()
                 viewModel.consumeMessage()

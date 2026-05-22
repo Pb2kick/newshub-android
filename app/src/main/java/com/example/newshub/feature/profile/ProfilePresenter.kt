@@ -44,7 +44,7 @@ class ProfilePresenter(
     }
 
     override fun onScreenStarted() {
-        onNameChanged("", "")
+        // FIX: do not clear name fields before async load — avoids blank UI while fetching
 
         if (!profileRepository.isConfigured) {
             view?.showMessage(R.string.supabase_not_configured)
@@ -58,54 +58,63 @@ class ProfilePresenter(
             return
         }
 
+        // FIX: always show voter id immediately; email filled when auth/profile resolves
         view?.renderAccountDetails(
-            email = "",
+            email = userEmail.orEmpty(),
             voterId = formatVoterId(sessionUserId)
         )
 
         view?.showLoading(true)
         scope.launch {
-            val authResult = authRepository.fetchAuthUser(accessToken)
-            if (authResult is ApiResult.Failure) {
-                view?.showLoading(false)
-                handleFailure(authResult)
-                return@launch
+            var authUser: AuthUserRecord? = null
+            var effectiveUserId = sessionUserId
+
+            when (val authResult = authRepository.fetchAuthUser(accessToken)) {
+                is ApiResult.Success -> {
+                    authUser = authResult.data
+                    effectiveUserId = authUser.userId.ifBlank { sessionUserId }
+                    if (effectiveUserId != sessionUserId) {
+                        sessionStore.saveSession(effectiveUserId, accessToken)
+                    }
+                    userEmail = authUser.email
+                }
+
+                is ApiResult.Failure -> {
+                    // FIX: auth can fail (expired token) — still load profile row and keep voter id visible
+                    handleFailure(authResult)
+                    view?.showMessage(R.string.profile_auth_unavailable)
+                }
             }
 
-            val authUser = (authResult as ApiResult.Success).data
-            val effectiveUserId = authUser.userId.ifBlank { sessionUserId }
-            if (effectiveUserId != sessionUserId) {
-                sessionStore.saveSession(effectiveUserId, accessToken)
-            }
-
-            userEmail = authUser.email
             view?.renderAccountDetails(
                 email = userEmail.orEmpty(),
                 voterId = formatVoterId(effectiveUserId)
             )
+
+            val authSnapshot = authUser ?: emptyAuthUser(effectiveUserId)
             when (val profileResult = profileRepository.fetchProfile(effectiveUserId, accessToken)) {
                 is ApiResult.Success -> {
-                    val resolved = resolveProfile(profileResult.data, authUser)
-                    if (resolved != null) {
-                        bindProfile(resolved)
-                        if (profileResult.data == null && resolved.firstName.isNotBlank() && resolved.lastName.isNotBlank()) {
-                            profileRepository.upsertProfile(
-                                userId = effectiveUserId,
-                                firstName = resolved.firstName,
-                                lastName = resolved.lastName,
-                                avatarUrl = resolved.avatarUrl,
-                                email = userEmail,
-                                accessToken = accessToken
-                            )
-                        }
+                    val resolved = resolveProfile(profileResult.data, authSnapshot)
+                    // FIX: always bind — email already rendered; names/avatar may be empty
+                    bindProfile(resolved, showLoadedToast = profileResult.data != null)
+                    if (!hasAnyProfileData(resolved)) {
+                        view?.showMessage(R.string.profile_incomplete)
+                    }
+                    if (profileResult.data == null && hasAnyProfileData(resolved)) {
+                        profileRepository.upsertProfile(
+                            userId = effectiveUserId,
+                            firstName = resolved.firstName,
+                            lastName = resolved.lastName,
+                            avatarUrl = resolved.avatarUrl,
+                            email = userEmail,
+                            accessToken = accessToken
+                        )
                     }
                 }
 
                 is ApiResult.Failure -> {
-                    view?.renderAccountDetails(
-                        email = userEmail.orEmpty(),
-                        voterId = formatVoterId(effectiveUserId)
-                    )
+                    // FIX: profile fetch failed — still show email/voter id and empty name fields
+                    bindProfile(resolveProfile(null, authSnapshot), showLoadedToast = false)
                     handleFailure(profileResult)
                 }
             }
@@ -274,28 +283,32 @@ class ProfilePresenter(
         }
     }
 
-    private fun bindProfile(profile: ProfileRecord) {
+    private fun bindProfile(profile: ProfileRecord, showLoadedToast: Boolean) {
         firstName = profile.firstName
         lastName = profile.lastName
         avatarUrl = profile.avatarUrl
         view?.renderName(profile.firstName, profile.lastName, profile.fullName)
         view?.renderAvatar(profile.avatarUrl)
-        view?.showMessage(R.string.profile_loaded)
+        if (showLoadedToast && hasAnyProfileData(profile)) {
+            view?.showMessage(R.string.profile_loaded)
+        }
     }
 
-    private fun resolveProfile(tableProfile: ProfileRecord?, authUser: AuthUserRecord): ProfileRecord? {
+    private fun resolveProfile(tableProfile: ProfileRecord?, authUser: AuthUserRecord): ProfileRecord {
         if (tableProfile != null) {
-            val enriched = mergeWithAuthFallback(tableProfile, authUser)
-            return if (hasAnyProfileData(enriched)) enriched else null
+            return mergeWithAuthFallback(tableProfile, authUser)
         }
 
         val inferred = inferNames(authUser.firstName, authUser.lastName, authUser.fullName)
+        val first = inferred.first
+        val last = inferred.second
+        // FIX: return empty names instead of null so bindProfile always runs
         return ProfileRecord(
-            firstName = inferred.first,
-            lastName = inferred.second,
-            fullName = listOf(inferred.first, inferred.second).filter { it.isNotBlank() }.joinToString(" "),
+            firstName = first,
+            lastName = last,
+            fullName = listOf(first, last).filter { it.isNotBlank() }.joinToString(" "),
             avatarUrl = authUser.avatarUrl
-        ).takeIf { hasAnyProfileData(it) }
+        )
     }
 
     private fun mergeWithAuthFallback(tableProfile: ProfileRecord, authUser: AuthUserRecord): ProfileRecord {
@@ -311,6 +324,17 @@ class ProfilePresenter(
             lastName = lastName,
             fullName = fullName,
             avatarUrl = tableProfile.avatarUrl ?: authUser.avatarUrl
+        )
+    }
+
+    private fun emptyAuthUser(userId: String): AuthUserRecord {
+        return AuthUserRecord(
+            userId = userId,
+            email = null,
+            firstName = "",
+            lastName = "",
+            fullName = "",
+            avatarUrl = null
         )
     }
 
@@ -345,5 +369,3 @@ class ProfilePresenter(
         view?.showMessage(UiErrorMapper.toMessageRes(result.error))
     }
 }
-
-

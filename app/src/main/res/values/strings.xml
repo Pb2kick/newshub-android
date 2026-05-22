@@ -103,6 +103,8 @@
     <string name="supabase_session_missing">Missing user session. Set sb_user_id and sb_access_token after login to sync profile.</string>
     <string name="profile_sync_failed">Could not sync profile with Supabase.</string>
     <string name="profile_loaded">Profile loaded from Supabase.</string>
+    <string name="profile_incomplete">Add your first and last name below to complete your profile.</string>
+    <string name="profile_auth_unavailable">Could not refresh account details. Your Voter ID is still shown below.</string>
     <string name="profile_picture_updated">Profile picture updated.</string>
     <string name="profile_picture_update_failed">Could not upload profile picture.</string>
     <string name="auth_login_required">Enter your email and password.</string>

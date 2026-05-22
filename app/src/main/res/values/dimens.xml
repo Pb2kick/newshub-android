@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- FIX: small gap above "See more" — list ends at button top, no 72dp overlap zone -->
+    <dimen name="home_list_padding_above_see_more">8dp</dimen>
+    <!-- FIX: clearance when "See more" is hidden and list extends above bottom nav -->
+    <dimen name="home_list_padding_above_nav">72dp</dimen>
+</resources>
