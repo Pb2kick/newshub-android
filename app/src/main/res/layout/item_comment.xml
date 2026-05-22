@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
 
     <TextView
         android:id="@+id/text_avatar_initials"
@@ -18,7 +18,7 @@
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="JD" />
+        tools:text="MS" />
 
     <TextView
         android:id="@+id/text_display_name"
@@ -26,12 +26,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:textColor="@color/home_text_primary"
-        android:textSize="13sp"
+        android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/button_delete"
         app:layout_constraintStart_toEndOf="@id/text_avatar_initials"
         app:layout_constraintTop_toTopOf="@id/text_avatar_initials"
-        tools:text="Jane Doe" />
+        tools:text="Marie Santos" />
 
     <TextView
         android:id="@+id/badge_reply"
@@ -68,24 +68,66 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:textColor="@color/home_muted"
-        android:textSize="11sp"
+        android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/text_avatar_initials"
         app:layout_constraintTop_toBottomOf="@id/text_display_name"
-        tools:text="1 hour ago" />
+        tools:text="4 hours ago" />
 
     <TextView
         android:id="@+id/text_content"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="4dp"
-        android:maxLines="3"
+        android:layout_marginTop="6dp"
         android:textColor="@color/home_text_secondary"
-        android:textSize="13sp"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/text_avatar_initials"
         app:layout_constraintTop_toBottomOf="@id/text_timestamp"
         tools:text="Comment text goes here." />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/text_avatar_initials"
+        app:layout_constraintTop_toBottomOf="@id/text_content">
+
+        <ImageButton
+            android:id="@+id/button_like"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/comment_like"
+            android:padding="4dp"
+            android:src="@android:drawable/btn_star_big_off"
+            app:tint="@color/home_muted" />
+
+        <TextView
+            android:id="@+id/text_like_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:textColor="@color/home_muted"
+            android:textSize="12sp"
+            tools:text="2" />
+
+        <TextView
+            android:id="@+id/button_report"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:text="@string/report_comment_action"
+            android:textColor="@color/home_muted"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

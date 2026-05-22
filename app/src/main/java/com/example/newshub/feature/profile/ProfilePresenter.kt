@@ -92,7 +92,7 @@ class ProfilePresenter(
             )
 
             val authSnapshot = authUser ?: emptyAuthUser(effectiveUserId)
-            when (val profileResult = profileRepository.fetchProfile(effectiveUserId, accessToken)) {
+            when (val profileResult = profileRepository.fetchProfile(effectiveUserId, accessToken, userEmail)) {
                 is ApiResult.Success -> {
                     val resolved = resolveProfile(profileResult.data, authSnapshot)
                     // FIX: always bind — email already rendered; names/avatar may be empty
@@ -113,9 +113,12 @@ class ProfilePresenter(
                 }
 
                 is ApiResult.Failure -> {
-                    // FIX: profile fetch failed — still show email/voter id and empty name fields
                     bindProfile(resolveProfile(null, authSnapshot), showLoadedToast = false)
-                    handleFailure(profileResult)
+                    if (userEmail.isNullOrBlank()) {
+                        handleFailure(profileResult)
+                    } else {
+                        view?.showMessage(R.string.profile_incomplete)
+                    }
                 }
             }
 

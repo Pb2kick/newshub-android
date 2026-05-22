@@ -26,7 +26,10 @@ import com.example.newshub.core.session.AndroidSessionStore
 import com.example.newshub.databinding.FragmentHomeBinding
 import com.example.newshub.network.ApiResult
 import com.example.newshub.toDetailBundle
+import com.example.newshub.core.location.NewsLocationContext
+import com.example.newshub.core.location.NewsLocationStore
 import com.example.newshub.ui.BottomNavHelper
+import com.example.newshub.ui.LocationNavHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,6 +89,7 @@ class HomeFragment : Fragment() {
         setupCategoryChips()
         setupScopeToggle()
 
+        applyStoredLocation()
         if (hasLocationPermission()) {
             resolveLastKnownLocation()
         } else {
@@ -135,12 +139,9 @@ class HomeFragment : Fragment() {
         binding.topBarInclude.buttonSearch.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_searchFragment)
         }
-        binding.topBarInclude.buttonLocation.setOnClickListener {
-            if (hasLocationPermission()) {
-                resolveLastKnownLocation()
-            } else {
-                requestLocationPermission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-            }
+        LocationNavHelper.wirePin(this, binding.topBarInclude) { context ->
+            applyLocationContext(context)
+            Toast.makeText(requireContext(), R.string.location_saved, Toast.LENGTH_SHORT).show()
             refreshNews()
         }
         BottomNavHelper.wire(
@@ -239,7 +240,47 @@ class HomeFragment : Fragment() {
         val area: String
     )
 
+    private fun applyStoredLocation() {
+        val saved = NewsLocationStore(requireContext()).load()
+        if (saved.latitude != null && saved.longitude != null) {
+            lastLat = saved.latitude
+            lastLng = saved.longitude
+        }
+        if (saved.scope.isNotBlank()) {
+            selectedScope = saved.scope
+            when (saved.scope) {
+                "National" -> binding.toggleScope.check(R.id.button_scope_national)
+                "International" -> binding.toggleScope.check(R.id.button_scope_international)
+                else -> binding.toggleScope.check(R.id.button_scope_local)
+            }
+        }
+    }
+
+    private fun applyLocationContext(context: NewsLocationContext) {
+        if (context.latitude != null && context.longitude != null) {
+            lastLat = context.latitude
+            lastLng = context.longitude
+        }
+        if (context.scope.isNotBlank()) {
+            selectedScope = context.scope
+            when (context.scope) {
+                "National" -> binding.toggleScope.check(R.id.button_scope_national)
+                "International" -> binding.toggleScope.check(R.id.button_scope_international)
+                else -> binding.toggleScope.check(R.id.button_scope_local)
+            }
+        }
+    }
+
     private fun resolveLocationContext(): LocationContext {
+        val saved = NewsLocationStore(requireContext()).load()
+        if (saved.country.isNotBlank() || saved.area.isNotBlank()) {
+            return LocationContext(
+                label = saved.label.ifBlank { saved.area.ifBlank { saved.country } },
+                country = saved.country.ifBlank { Locale.getDefault().displayCountry },
+                area = saved.area
+            )
+        }
+
         val lat = lastLat
         val lng = lastLng
         if (lat != null && lng != null) {

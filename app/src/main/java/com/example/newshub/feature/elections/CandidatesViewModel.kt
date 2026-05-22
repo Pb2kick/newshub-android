@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.newshub.SupabaseService
 import com.example.newshub.CandidateRecord
 import com.example.newshub.R
+import com.example.newshub.core.RestIdNormalizer
 import com.example.newshub.UiErrorMapper
 import com.example.newshub.network.ApiResult
 import kotlinx.coroutines.launch
@@ -28,9 +29,10 @@ class CandidatesViewModel(
     val uiState: LiveData<CandidatesUiState> = _uiState
 
     fun load(electionId: String) {
+        val normalizedId = RestIdNormalizer.normalize(electionId)
         _uiState.value = _uiState.value?.copy(isLoading = true)
         viewModelScope.launch {
-            when (val result = supabaseService.fetchCandidatesByElection(electionId)) {
+            when (val result = supabaseService.fetchCandidatesByElection(normalizedId)) {
                 is ApiResult.Success -> {
                     val current = _uiState.value ?: CandidatesUiState()
                     val filtered = applySearch(result.data, current.searchQuery)

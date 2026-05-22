@@ -18,7 +18,7 @@ fun NewsArticle.toDetailBundle(): Bundle {
 
 fun ElectionRecord.toDetailBundle(): Bundle {
     return Bundle().apply {
-        putString("electionId", id)
+        putString("electionId", com.example.newshub.core.RestIdNormalizer.normalize(id))
         putString("electionName", name)
         putString("electionStatus", status)
         putString("electionStartDate", startDate)
@@ -32,8 +32,8 @@ fun ElectionRecord.toDetailBundle(): Bundle {
 
 fun CandidateRecord.toProfileBundle(electionName: String): Bundle {
     return Bundle().apply {
-        putString("candidateId", id)
-        putString("electionId", electionId)
+        putString("candidateId", com.example.newshub.core.RestIdNormalizer.normalize(id))
+        putString("electionId", com.example.newshub.core.RestIdNormalizer.normalize(electionId))
         putString("electionName", electionName)
         putString("candidateName", fullName)
         putString("candidateParty", party)
@@ -46,9 +46,9 @@ fun CandidateRecord.toProfileBundle(electionName: String): Bundle {
 
 fun CandidateRecord.toVoteBundle(electionName: String): Bundle {
     return Bundle().apply {
-        putString("electionId", electionId)
+        putString("electionId", com.example.newshub.core.RestIdNormalizer.normalize(electionId))
         putString("electionName", electionName)
-        putString("candidateId", id)
+        putString("candidateId", com.example.newshub.core.RestIdNormalizer.normalize(id))
         putString("candidateName", fullName)
     }
 }

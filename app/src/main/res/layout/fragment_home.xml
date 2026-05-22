@@ -12,6 +12,7 @@
         layout="@layout/partial_top_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:elevation="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -249,37 +250,44 @@
         android:paddingTop="10dp"
         android:paddingEnd="12dp"
         android:paddingBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@id/button_see_more"
+        app:layout_constraintBottom_toTopOf="@id/footer_actions"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toggle_scope"
         tools:listitem="@layout/item_news_article" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_see_more"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+    <LinearLayout
+        android:id="@+id/footer_actions"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="4dp"
-        android:text="@string/see_more"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        android:orientation="vertical"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="4dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/recycler_news" />
+        app:layout_constraintStart_toStartOf="parent">
 
-    <ProgressBar
-        android:id="@+id/progress_see_more"
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/button_see_more"
-        app:layout_constraintEnd_toEndOf="@id/button_see_more"
-        app:layout_constraintStart_toStartOf="@id/button_see_more"
-        app:layout_constraintTop_toTopOf="@id/button_see_more" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_see_more"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/see_more"
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/progress_see_more"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center" />
+        </FrameLayout>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/text_empty"

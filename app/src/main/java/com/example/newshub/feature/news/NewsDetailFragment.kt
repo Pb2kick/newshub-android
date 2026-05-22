@@ -21,6 +21,8 @@ import com.example.newshub.core.session.AndroidSessionStore
 import com.example.newshub.databinding.FragmentNewsDetailBinding
 import com.example.newshub.toDetailBundle
 import com.example.newshub.ui.BottomNavHelper
+import com.example.newshub.ui.LocationNavHelper
+import com.example.newshub.ui.ReportBottomSheetFragment
 
 class NewsDetailFragment : Fragment() {
 
@@ -79,15 +81,21 @@ class NewsDetailFragment : Fragment() {
         binding.imageAuthor.load("https://i.pravatar.cc/150?img=12") {
             crossfade(true)
         }
+        binding.imageCommentAvatar.load("https://i.pravatar.cc/150?img=5") {
+            crossfade(true)
+            placeholder(R.drawable.bg_auth_logo)
+        }
         binding.imageArticle.load(articleImage) {
             crossfade(true)
             placeholder(R.drawable.bg_home_news_thumb_1)
             error(R.drawable.bg_home_news_thumb_1)
         }
 
-        commentAdapter = CommentAdapter(commentsViewModel.currentUserId()) { item ->
-            commentsViewModel.deleteComment(item.id)
-        }
+        commentAdapter = CommentAdapter(
+            currentUserId = commentsViewModel.currentUserId(),
+            onDelete = { item -> commentsViewModel.deleteComment(item.id) },
+            onReport = { item -> openReportSheet("COMMENT", item.id, item.content.take(80)) }
+        )
         binding.recyclerComments.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerComments.adapter = commentAdapter
         binding.recyclerComments.isNestedScrollingEnabled = false
@@ -106,16 +114,17 @@ class NewsDetailFragment : Fragment() {
             findNavController().popBackStack()
         }
 
-        binding.buttonMenu.setOnClickListener {
-            Toast.makeText(requireContext(), getString(R.string.home_placeholder_action), Toast.LENGTH_SHORT).show()
+        binding.topBarInclude.buttonSearch.setOnClickListener {
+            findNavController().navigate(R.id.searchFragment)
         }
-        binding.buttonRefresh.setOnClickListener {
-            viewModel.loadArticle(articleUrl, articleTitle, articleSource, articlePublishedAt, articleSummary)
-            if (articleId.isNotBlank()) commentsViewModel.load(articleId)
+        LocationNavHelper.wirePin(this, binding.topBarInclude) { }
+
+        binding.buttonReportArticle.setOnClickListener {
+            val label = binding.textTitle.text?.toString()?.take(120) ?: articleTitle
+            val targetId = articleId.ifBlank { articleUrl.orEmpty() }
+            openReportSheet("ARTICLE", targetId, label)
         }
-        binding.buttonProfileShortcut.setOnClickListener {
-            findNavController().navigate(R.id.profileFragment)
-        }
+
         binding.buttonShare.setOnClickListener {
             Toast.makeText(requireContext(), getString(R.string.article_share), Toast.LENGTH_SHORT).show()
         }
@@ -187,6 +196,15 @@ class NewsDetailFragment : Fragment() {
         if (articleId.isNotBlank()) {
             commentsViewModel.load(articleId)
         }
+    }
+
+    private fun openReportSheet(targetType: String, targetId: String, targetLabel: String?) {
+        if (targetId.isBlank()) {
+            Toast.makeText(requireContext(), R.string.report_failed, Toast.LENGTH_SHORT).show()
+            return
+        }
+        ReportBottomSheetFragment.newInstance(targetType, targetId, targetLabel)
+            .show(parentFragmentManager, "report_sheet")
     }
 
     override fun onResume() {

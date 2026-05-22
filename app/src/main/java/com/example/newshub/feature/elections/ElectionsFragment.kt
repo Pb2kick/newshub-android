@@ -15,6 +15,7 @@ import com.example.newshub.R
 import com.example.newshub.databinding.FragmentElectionsBinding
 import com.example.newshub.toDetailBundle
 import com.example.newshub.ui.BottomNavHelper
+import com.example.newshub.ui.LocationNavHelper
 
 class ElectionsFragment : Fragment() {
 
@@ -47,9 +48,7 @@ class ElectionsFragment : Fragment() {
         binding.topBarInclude.buttonSearch.setOnClickListener {
             findNavController().navigate(R.id.searchFragment)
         }
-        binding.topBarInclude.buttonLocation.setOnClickListener {
-            viewModel.load()
-        }
+        LocationNavHelper.wirePin(this, binding.topBarInclude) { }
         binding.buttonFilter.setOnClickListener {
             binding.chipGroupScope.check(R.id.chip_filter_all)
             viewModel.setScopeFilter(ElectionScopeFilter.ALL)

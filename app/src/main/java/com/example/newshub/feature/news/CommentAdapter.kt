@@ -11,12 +11,13 @@ import com.example.newshub.formatRelativeTime
 
 class CommentAdapter(
     private val currentUserId: String?,
-    private val onDelete: (CommentItem) -> Unit
+    private val onDelete: (CommentItem) -> Unit,
+    private val onReport: (CommentItem) -> Unit
 ) : ListAdapter<CommentItem, CommentAdapter.CommentViewHolder>(Diff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
         val binding = ItemCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return CommentViewHolder(binding, currentUserId, onDelete)
+        return CommentViewHolder(binding, currentUserId, onDelete, onReport)
     }
 
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
@@ -26,7 +27,8 @@ class CommentAdapter(
     class CommentViewHolder(
         private val binding: ItemCommentBinding,
         private val currentUserId: String?,
-        private val onDelete: (CommentItem) -> Unit
+        private val onDelete: (CommentItem) -> Unit,
+        private val onReport: (CommentItem) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: CommentItem) {
@@ -40,10 +42,12 @@ class CommentAdapter(
             binding.textTimestamp.text = formatRelativeTime(item.createdAt)
             binding.textContent.text = item.content
             binding.badgeReply.visibility = if (item.parentId.isNullOrBlank()) View.GONE else View.VISIBLE
+            binding.textLikeCount.text = "0"
 
             val isOwn = !currentUserId.isNullOrBlank() && item.userId == currentUserId
             binding.buttonDelete.visibility = if (isOwn) View.VISIBLE else View.GONE
             binding.buttonDelete.setOnClickListener { onDelete(item) }
+            binding.buttonReport.setOnClickListener { onReport(item) }
         }
     }
 

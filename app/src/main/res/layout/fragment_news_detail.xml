@@ -7,71 +7,14 @@
     android:background="@color/home_background"
     tools:context=".feature.news.NewsDetailFragment">
 
-    <LinearLayout
-        android:id="@+id/top_bar"
+    <include
+        android:id="@+id/top_bar_include"
+        layout="@layout/partial_top_bar"
         android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageButton
-            android:id="@+id/button_menu"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/home_menu"
-            android:padding="6dp"
-            android:src="@android:drawable/ic_menu_sort_by_size"
-            app:tint="@color/home_text_secondary" />
-
-        <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/home_brand"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_newshub_logo" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/home_brand"
-            android:textColor="@color/home_text_primary"
-            android:textSize="34sp"
-            android:textStyle="bold" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:id="@+id/button_refresh"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/news_refresh"
-            android:padding="6dp"
-            android:src="@android:drawable/ic_menu_search"
-            app:tint="@color/home_text_secondary" />
-
-        <ImageButton
-            android:id="@+id/button_profile_shortcut"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginStart="6dp"
-            android:background="@drawable/bg_home_chip_muted"
-            android:contentDescription="@string/home_nav_profile"
-            android:padding="6dp"
-            android:src="@android:drawable/ic_menu_myplaces"
-            app:tint="@color/home_primary" />
-    </LinearLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll_content"
@@ -81,10 +24,10 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingBottom="72dp"
-        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_bar">
+        app:layout_constraintTop_toBottomOf="@id/top_bar_include">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -101,7 +44,7 @@
                 android:textColor="@color/home_text_secondary"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                app:drawableStartCompat="@android:drawable/ic_media_previous" />
+                app:drawableStartCompat="@drawable/ic_back_chevron" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -131,7 +74,7 @@
                     android:layout_marginStart="10dp"
                     android:textColor="@color/home_muted"
                     android:textSize="13sp"
-                    tools:text="3 min read" />
+                    tools:text="5 min read" />
             </LinearLayout>
 
             <TextView
@@ -140,7 +83,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:textColor="@color/home_text_primary"
-                android:textSize="44sp"
+                android:textSize="32sp"
                 android:textStyle="bold"
                 tools:text="Tech Giants Announce Major Privacy Overhaul" />
 
@@ -157,8 +100,6 @@
                     android:layout_height="44dp"
                     android:background="@drawable/bg_profile_avatar"
                     android:scaleType="centerCrop"
-                    android:src="@android:drawable/ic_menu_myplaces"
-                    app:tint="@color/home_text_secondary"
                     tools:src="@drawable/bg_home_news_thumb_1" />
 
                 <LinearLayout
@@ -173,7 +114,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/home_text_primary"
-                        android:textSize="30sp"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         tools:text="David Chen" />
 
@@ -184,7 +125,7 @@
                         android:layout_marginTop="2dp"
                         android:textColor="@color/home_text_secondary"
                         android:textSize="13sp"
-                        tools:text="4 hours ago  •  Updated 1 hour ago" />
+                        tools:text="4 hours ago • Updated 1 hour ago" />
                 </LinearLayout>
 
                 <ImageButton
@@ -206,13 +147,17 @@
                     android:padding="6dp"
                     android:src="@android:drawable/ic_menu_save"
                     app:tint="@color/home_muted" />
-            </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="12dp"
-                android:background="@color/home_border" />
+                <ImageButton
+                    android:id="@+id/button_report_article"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/report_article_action"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_flag"
+                    app:tint="@color/home_muted" />
+            </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -225,7 +170,7 @@
                 <ImageView
                     android:id="@+id/image_article"
                     android:layout_width="match_parent"
-                    android:layout_height="310dp"
+                    android:layout_height="220dp"
                     android:scaleType="centerCrop"
                     tools:src="@drawable/bg_home_news_thumb_1" />
             </com.google.android.material.card.MaterialCardView>
@@ -262,53 +207,99 @@
                 android:id="@+id/text_comments_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="20dp"
+                android:drawablePadding="8dp"
                 android:textColor="@color/home_text_primary"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
+                app:drawableStartCompat="@android:drawable/ic_dialog_email"
+                app:drawableTint="@color/home_primary"
                 tools:text="Comments (3)" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/image_comment_avatar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_auth_logo"
+                    android:scaleType="centerCrop"
+                    tools:src="@drawable/bg_home_news_thumb_1" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_comment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    app:boxBackgroundMode="outline"
+                    app:boxCornerRadiusBottomEnd="20dp"
+                    app:boxCornerRadiusBottomStart="20dp"
+                    app:boxCornerRadiusTopEnd="20dp"
+                    app:boxCornerRadiusTopStart="20dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/input_comment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/comment_share_hint"
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:maxLines="3" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_post_comment"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:enabled="false"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:padding="0dp"
+                    app:cornerRadius="24dp"
+                    app:icon="@android:drawable/ic_menu_send"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconTint="@android:color/white" />
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_comments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="false"
                 tools:itemCount="2"
                 tools:listitem="@layout/item_comment" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layout_comment"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="@string/comment_hint">
+                android:layout_marginTop="20dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/input_comment"
-                    android:layout_width="match_parent"
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="20dp"
+                    android:background="@color/home_primary" />
+
+                <TextView
+                    android:id="@+id/text_related_header"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapSentences|textMultiLine"
-                    android:maxLines="4" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_post_comment"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:enabled="false"
-                android:text="@string/post_comment" />
-
-            <TextView
-                android:id="@+id/text_related_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:text="@string/related_articles_title"
-                android:textColor="@color/home_text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                    android:layout_marginStart="8dp"
+                    android:text="@string/related_articles_title"
+                    android:textColor="@color/home_text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_related"
@@ -343,4 +334,3 @@
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

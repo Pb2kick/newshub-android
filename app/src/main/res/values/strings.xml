@@ -227,5 +227,35 @@
     <string name="submit_verification">Submit Verification</string>
     <string name="related_articles_title">Related Articles</string>
     <string name="delete">Delete</string>
+
+    <string name="close">Close</string>
+    <string name="location_sheet_title">Your Location</string>
+    <string name="location_use_current">Use my current location</string>
+    <string name="location_permission_hint">Requires location permission</string>
+    <string name="location_or_manual">or enter manually</string>
+    <string name="location_manual_hint">e.g. Chicago, IL</string>
+    <string name="location_manual_required">Enter a city or area.</string>
+    <string name="location_unavailable">Could not detect your location.</string>
+    <string name="location_permission_denied">Location permission is required.</string>
+    <string name="location_saved">Location updated.</string>
+
+    <string name="report_title">Report</string>
+    <string name="report_subtitle">Help us keep NewsHub safe. Your report is reviewed by moderators.</string>
+    <string name="report_reason_label">Reason</string>
+    <string name="report_details_hint">Additional details (optional)</string>
+    <string name="report_submit">Submit Report</string>
+    <string name="report_cancel">Cancel</string>
+    <string name="report_success">Report submitted. Thank you.</string>
+    <string name="report_failed">Could not submit report. Try again.</string>
+    <string name="report_sign_in_required">Sign in to submit a report.</string>
+    <string name="report_reason_spam">Spam</string>
+    <string name="report_reason_harassment">Harassment</string>
+    <string name="report_reason_misinformation">Misinformation</string>
+    <string name="report_reason_other">Other</string>
+    <string name="report_article_action">Report article</string>
+    <string name="report_comment_action">Report</string>
+    <string name="comment_share_hint">Share your thoughts…</string>
+    <string name="comment_send">Send</string>
+    <string name="comment_like">Like</string>
 </resources>
 

@@ -7,7 +7,11 @@ import com.example.newshub.network.ApiResult
 interface ProfileRepository {
     val isConfigured: Boolean
 
-    suspend fun fetchProfile(userId: String, accessToken: String): ApiResult<ProfileRecord?>
+    suspend fun fetchProfile(
+        userId: String,
+        accessToken: String,
+        email: String? = null
+    ): ApiResult<ProfileRecord?>
 
     suspend fun upsertProfile(
         userId: String,
@@ -33,8 +37,12 @@ class SupabaseProfileRepository(
     override val isConfigured: Boolean
         get() = service.isConfigured
 
-    override suspend fun fetchProfile(userId: String, accessToken: String): ApiResult<ProfileRecord?> {
-        return service.fetchProfile(userId, accessToken)
+    override suspend fun fetchProfile(
+        userId: String,
+        accessToken: String,
+        email: String?
+    ): ApiResult<ProfileRecord?> {
+        return service.fetchProfile(userId, accessToken, email)
     }
 
     override suspend fun upsertProfile(

@@ -34,7 +34,7 @@ interface BackendApi {
         @Query("location") location: String? = null,
         @Query("country") country: String? = null,
         @Query("area") area: String? = null,
-        @Query("limit") limit: Int = 5
+        @Query("limit") limit: Int = 25
     ): Response<JsonElement>
 
     @GET("api/news/content")

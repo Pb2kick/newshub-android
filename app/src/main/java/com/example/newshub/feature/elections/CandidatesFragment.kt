@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newshub.R
 import com.example.newshub.databinding.FragmentCandidatesBinding
 import com.example.newshub.toProfileBundle
+import com.example.newshub.core.RestIdNormalizer
 import com.example.newshub.ui.BottomNavHelper
+import com.example.newshub.ui.LocationNavHelper
 
 class CandidatesFragment : Fragment() {
 
@@ -37,7 +39,7 @@ class CandidatesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        electionId = arguments?.getString("electionId").orEmpty()
+        electionId = RestIdNormalizer.normalize(arguments?.getString("electionId").orEmpty())
         electionName = arguments?.getString("electionName").orEmpty()
         binding.textTitle.text = if (electionName.isBlank()) {
             getString(R.string.candidates_title)
@@ -58,9 +60,7 @@ class CandidatesFragment : Fragment() {
         binding.topBarInclude.buttonSearch.setOnClickListener {
             findNavController().navigate(R.id.searchFragment)
         }
-        binding.topBarInclude.buttonLocation.setOnClickListener {
-            if (electionId.isNotBlank()) viewModel.load(electionId)
-        }
+        LocationNavHelper.wirePin(this, binding.topBarInclude) { }
         binding.buttonVoteNow.setOnClickListener {
             val first = viewModel.uiState.value?.items?.firstOrNull()
             if (first != null) {

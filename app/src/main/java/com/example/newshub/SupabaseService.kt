@@ -42,7 +42,8 @@ data class AuthUserRecord(
 
 class SupabaseService {
 
-    private val fallbackUserIdColumns = listOf("auth_user_id", "user_id", "id")
+    // FIX: do not query users.user_id or users.id with auth UUID — causes 403/400 on NewsHub schema
+    private val fallbackUserIdColumns = emptyList<String>()
     private val fallbackPhotoColumns = listOf("profile_photo_url", "avatar_url", "photo_url", "picture")
 
     private val supabaseUrl = BuildConfig.SUPABASE_URL.trim().trimEnd('/')
@@ -112,26 +113,33 @@ class SupabaseService {
         }
     }
 
-    suspend fun fetchProfile(userId: String, accessToken: String?): ApiResult<ProfileRecord?> = withContext(Dispatchers.IO) {
+    suspend fun fetchProfile(
+        userId: String,
+        accessToken: String?,
+        email: String? = null
+    ): ApiResult<ProfileRecord?> = withContext(Dispatchers.IO) {
         runApiCall {
-            val requestedUserIdColumn = BuildConfig.SUPABASE_PROFILE_USER_ID_COLUMN
-            val lookupColumns = linkedSetOf(requestedUserIdColumn).apply {
-                addAll(fallbackUserIdColumns)
+            val authColumn = BuildConfig.SUPABASE_PROFILE_USER_ID_COLUMN
+            when (val byAuth = fetchProfileByColumn(userId, authColumn, accessToken)) {
+                is ApiResult.Success -> {
+                    if (byAuth.data != null) return@runApiCall ApiResult.Success(byAuth.data)
+                }
+                is ApiResult.Failure -> {
+                    if (!isRecoverableProfileLookupFailure(byAuth.error)) {
+                        return@runApiCall byAuth
+                    }
+                }
             }
 
-            for (candidateColumn in lookupColumns) {
-                val queryResult = fetchProfileByColumn(userId, candidateColumn, accessToken)
-
-                when (queryResult) {
+            val trimmedEmail = email?.trim().orEmpty()
+            if (trimmedEmail.isNotBlank()) {
+                when (val byEmail = fetchProfileByColumn(trimmedEmail, "email", accessToken)) {
                     is ApiResult.Success -> {
-                        if (queryResult.data != null) {
-                            return@runApiCall ApiResult.Success(queryResult.data)
-                        }
+                        if (byEmail.data != null) return@runApiCall ApiResult.Success(byEmail.data)
                     }
-
                     is ApiResult.Failure -> {
-                        if (!queryResult.error.detail.orEmpty().contains("column", ignoreCase = true)) {
-                            return@runApiCall queryResult
+                        if (!isRecoverableProfileLookupFailure(byEmail.error)) {
+                            return@runApiCall byEmail
                         }
                     }
                 }
@@ -139,6 +147,17 @@ class SupabaseService {
 
             ApiResult.Success(null)
         }
+    }
+
+    private fun isRecoverableProfileLookupFailure(error: ApiFailure): Boolean {
+        val detail = error.detail.orEmpty()
+        if (detail.contains("column", ignoreCase = true)) return true
+        if (error.statusCode == 403) return true
+        if (error.statusCode == 400) {
+            return detail.contains("uuid", ignoreCase = true) ||
+                detail.contains("invalid input", ignoreCase = true)
+        }
+        return false
     }
 
     suspend fun upsertProfile(
@@ -497,7 +516,7 @@ class SupabaseService {
     suspend fun fetchElection(electionId: String, accessToken: String? = null): ApiResult<ElectionRecord?> =
         withContext(Dispatchers.IO) {
             runApiCall {
-                val encodedId = urlEncode(electionId)
+                val encodedId = urlEncode(com.example.newshub.core.RestIdNormalizer.normalize(electionId))
                 val url = "$supabaseUrl/rest/v1/elections" +
                     "?select=id,name,region,start_time,end_time,status,image_url,is_deleted" +
                     "&id=eq.$encodedId&is_deleted=eq.false&limit=1"
@@ -514,20 +533,21 @@ class SupabaseService {
         accessToken: String? = null
     ): ApiResult<List<CandidateRecord>> = withContext(Dispatchers.IO) {
         runApiCall {
-            val encodedElectionId = urlEncode(electionId)
+            val normalizedId = com.example.newshub.core.RestIdNormalizer.normalize(electionId)
+            val encodedElectionId = urlEncode(normalizedId)
             val url = "$supabaseUrl/rest/v1/candidates" +
                 "?select=id,election_id,name,position,party,photo_url,education,experience,bio,display_order" +
                 "&election_id=eq.$encodedElectionId&order=display_order.asc"
             val response = restApi.fetchRows(url, supabaseAnonKey, bearer(accessToken))
             if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
-            ApiResult.Success(response.body().orEmpty().mapNotNull { mapCandidateRow(it, electionId) })
+            ApiResult.Success(response.body().orEmpty().mapNotNull { mapCandidateRow(it, normalizedId) })
         }
     }
 
     suspend fun fetchCandidate(candidateId: String, accessToken: String? = null): ApiResult<CandidateRecord?> =
         withContext(Dispatchers.IO) {
             runApiCall {
-                val encodedId = urlEncode(candidateId)
+                val encodedId = urlEncode(com.example.newshub.core.RestIdNormalizer.normalize(candidateId))
                 val url = "$supabaseUrl/rest/v1/candidates" +
                     "?select=id,election_id,name,position,party,photo_url,education,experience,bio,display_order" +
                     "&id=eq.$encodedId&limit=1"
@@ -852,15 +872,50 @@ class SupabaseService {
         return false
     }
 
+    suspend fun submitReport(
+        targetType: String,
+        targetId: String,
+        targetLabel: String?,
+        reason: String,
+        details: String?,
+        reporterUserId: String,
+        accessToken: String
+    ): ApiResult<Unit> = withContext(Dispatchers.IO) {
+        runApiCall {
+            val response = restApi.insertRow(
+                url = "$supabaseUrl/rest/v1/reports",
+                apiKey = supabaseAnonKey,
+                authorization = bearer(accessToken),
+                body = mapOf(
+                    "reporter_user_id" to reporterUserId,
+                    "target_type" to targetType,
+                    "target_id" to targetId,
+                    "target_label" to targetLabel,
+                    "reason" to reason,
+                    "details" to details?.trim()?.ifBlank { null },
+                    "status" to "PENDING"
+                )
+            )
+            if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
+            ApiResult.Success(Unit)
+        }
+    }
+
     private fun Map<String, Any?>.optString(vararg keys: String): String {
         for (key in keys) {
             val value = this[key]
             when (value) {
                 is String -> if (value.isNotBlank()) return value
-                is Number -> return value.toString()
+                is Number -> return formatRestNumber(value)
                 is Boolean -> return value.toString()
             }
         }
         return ""
+    }
+
+    private fun formatRestNumber(value: Number): String {
+        val asDouble = value.toDouble()
+        val asLong = asDouble.toLong()
+        return if (asDouble == asLong.toDouble()) asLong.toString() else value.toString()
     }
 }

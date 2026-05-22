@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newshub.R
+import com.example.newshub.core.location.NewsLocationStore
 import com.example.newshub.databinding.FragmentSearchBinding
 import com.example.newshub.toDetailBundle
 import com.example.newshub.toProfileBundle
@@ -25,8 +26,8 @@ class SearchFragment : Fragment() {
     private lateinit var adapter: SearchSectionAdapter
 
     private var scope = "Local"
-    private val defaultCountry: String
-        get() = Locale.getDefault().displayCountry.takeIf { it.isNotBlank() } ?: "Philippines"
+    private var country = ""
+    private var area = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,6 +40,7 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        loadSavedLocation()
 
         adapter = SearchSectionAdapter(
             onArticleClick = { row ->
@@ -69,12 +71,7 @@ class SearchFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
             override fun afterTextChanged(s: Editable?) {
-                viewModel.search(
-                    query = s?.toString().orEmpty(),
-                    scope = scope,
-                    country = defaultCountry,
-                    area = ""
-                )
+                runSearch(s?.toString().orEmpty())
             }
         })
 
@@ -86,6 +83,38 @@ class SearchFragment : Fragment() {
                 viewModel.consumeMessage()
             }
         }
+
+        val existing = binding.inputSearch.text?.toString().orEmpty()
+        if (existing.length >= 2) {
+            runSearch(existing)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadSavedLocation()
+        val query = binding.inputSearch.text?.toString().orEmpty()
+        if (query.length >= 2) {
+            runSearch(query)
+        }
+    }
+
+    private fun loadSavedLocation() {
+        val saved = NewsLocationStore(requireContext()).load()
+        scope = saved.scope.ifBlank { "Local" }
+        country = saved.country.ifBlank {
+            Locale.getDefault().displayCountry.takeIf { it.isNotBlank() } ?: "Philippines"
+        }
+        area = saved.area
+    }
+
+    private fun runSearch(query: String) {
+        viewModel.search(
+            query = query,
+            scope = scope,
+            country = country,
+            area = area
+        )
     }
 
     override fun onDestroyView() {
