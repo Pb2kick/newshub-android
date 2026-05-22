@@ -1,15 +1,58 @@
+# Built application files
+*.apk
+*.ap_
+*.aab
+
+# Android Studio / IntelliJ — not required to build or run (regenerated per machine)
+.idea/
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+*.ipr
+*.iws
+out/
+
+# Gradle — caches and outputs (wrapper scripts stay tracked)
+.gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Local machine config (SDK path, etc.)
 local.properties
+*.local.properties
+
+# Secrets / signing (never commit)
+*.jks
+*.keystore
+key.properties
+secrets.properties
+signing.properties
+
+# Native / NDK
+.externalNativeBuild/
+.cxx/
+*.so
+*.o
+
+# Kotlin
+.kotlin/
+
+# Captures, profiling, logs
+/captures/
+*.hprof
+*.log
+
+# OS junk
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Cursor / editor (not part of the app)
+.cursor/
+
+# Docs — not required to build or run (already-tracked files stay until: git rm -r --cached docs)
+/docs/
+
+# Submission screenshots (large binaries; README can link to external hosting if needed)
+/docs/screenshots/

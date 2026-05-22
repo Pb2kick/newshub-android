@@ -373,7 +373,7 @@ class SupabaseService {
                     url = "$supabaseUrl/rest/v1/notifications?id=eq.$encodedId",
                     apiKey = supabaseAnonKey,
                     authorization = bearer(accessToken),
-                    body = mapOf("read" to true)
+                    body = mapOf("is_read" to true)
                 )
                 if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
                 ApiResult.Success(Unit)
@@ -388,7 +388,7 @@ class SupabaseService {
                     url = "$supabaseUrl/rest/v1/notifications?recipient_user_id=eq.$encodedUserId",
                     apiKey = supabaseAnonKey,
                     authorization = bearer(accessToken),
-                    body = mapOf("read" to true)
+                    body = mapOf("is_read" to true)
                 )
                 if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
                 ApiResult.Success(Unit)
