@@ -78,9 +78,9 @@ class BackendService {
         get() = backendBaseUrl.isNotBlank()
 
     suspend fun fetchNews(
-        lat: Double?,
-        lng: Double?,
-        location: String?,
+        lat: Double? = null,
+        lng: Double? = null,
+        location: String? = null,
         category: String = "Top Stories",
         scope: String = "Local",
         page: Int = 0,

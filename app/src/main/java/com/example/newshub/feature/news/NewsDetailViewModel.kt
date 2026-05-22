@@ -67,7 +67,17 @@ class NewsDetailViewModel(
     fun loadRelated(category: String, excludeArticleId: String) {
         if (category.isBlank()) return
         viewModelScope.launch {
-            when (val result = backendService.fetchNews(category = category, scope = "National", page = 0, size = 4)) {
+            when (
+                val result = backendService.fetchNews(
+                    lat = null,
+                    lng = null,
+                    location = null,
+                    category = category,
+                    scope = "National",
+                    page = 0,
+                    size = 4
+                )
+            ) {
                 is ApiResult.Success -> {
                     val filtered = result.data.articles.filter { it.id != excludeArticleId }
                     _uiState.value = _uiState.value?.copy(relatedArticles = filtered)

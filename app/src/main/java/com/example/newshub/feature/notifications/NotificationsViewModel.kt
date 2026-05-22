@@ -56,9 +56,9 @@ class NotificationsViewModel(
         val userId = sessionStore.getUserId() ?: return
         val token = sessionStore.getAccessToken() ?: return
         viewModelScope.launch {
-            when (supabaseService.markAllNotificationsRead(userId, token)) {
+            when (val result = supabaseService.markAllNotificationsRead(userId, token)) {
                 is ApiResult.Success -> refresh()
-                is ApiResult.Failure -> showError(it)
+                is ApiResult.Failure -> showError(result)
             }
         }
     }
@@ -66,9 +66,9 @@ class NotificationsViewModel(
     fun deleteNotification(id: String) {
         val token = sessionStore.getAccessToken() ?: return
         viewModelScope.launch {
-            when (supabaseService.deleteNotification(id, token)) {
+            when (val result = supabaseService.deleteNotification(id, token)) {
                 is ApiResult.Success -> refresh()
-                is ApiResult.Failure -> showError(it)
+                is ApiResult.Failure -> showError(result)
             }
         }
     }
