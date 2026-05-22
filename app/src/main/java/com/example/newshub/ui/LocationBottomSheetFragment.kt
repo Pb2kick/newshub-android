@@ -1,9 +1,11 @@
 package com.example.newshub.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -29,12 +31,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.Locale
+import kotlin.coroutines.resume
 
 class LocationBottomSheetFragment : BottomSheetDialogFragment() {
 
@@ -133,6 +137,7 @@ class LocationBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun readLastKnownLocation(): NewsLocationContext? {
         val manager = requireContext().getSystemService(LocationManager::class.java) ?: return null
         var bestTime = Long.MIN_VALUE
@@ -154,7 +159,18 @@ class LocationBottomSheetFragment : BottomSheetDialogFragment() {
     private fun geocode(lat: Double, lng: Double): NewsLocationContext? {
         return try {
             val geocoder = Geocoder(requireContext(), Locale.getDefault())
-            val address = geocoder.getFromLocation(lat, lng, 1)?.firstOrNull() ?: return null
+            val address = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                // We use a blocking approach for simplicity in this background context
+                // but technically we should use the callback version for API 33+
+                // However, since we are already in withContext(Dispatchers.IO), 
+                // the deprecated version is still functional and easier to use synchronously.
+                @Suppress("DEPRECATION")
+                geocoder.getFromLocation(lat, lng, 1)?.firstOrNull()
+            } else {
+                @Suppress("DEPRECATION")
+                geocoder.getFromLocation(lat, lng, 1)?.firstOrNull()
+            } ?: return null
+
             val locality = address.locality.orEmpty()
             val admin = address.adminArea.orEmpty()
             val country = address.countryName.orEmpty().ifBlank { Locale.getDefault().displayCountry }

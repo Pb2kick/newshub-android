@@ -14,7 +14,9 @@ import kotlinx.coroutines.launch
 data class CommentsUiState(
     val isLoading: Boolean = false,
     val comments: List<CommentItem> = emptyList(),
-    val messageRes: Int? = null
+    val messageRes: Int? = null,
+    val currentUserAvatar: String? = null,
+    val currentUserFullName: String? = null
 )
 
 class CommentsViewModel(
@@ -27,6 +29,26 @@ class CommentsViewModel(
 
     private var articleId: String = ""
 
+    init {
+        refreshCurrentUserProfile()
+    }
+
+    private fun refreshCurrentUserProfile() {
+        val userId = sessionStore.getUserId()
+        val token = sessionStore.getAccessToken()
+        if (userId != null && token != null) {
+            viewModelScope.launch {
+                val profileResult = supabaseService.fetchProfile(userId, token)
+                if (profileResult is ApiResult.Success) {
+                    _uiState.value = _uiState.value?.copy(
+                        currentUserAvatar = profileResult.data?.avatarUrl,
+                        currentUserFullName = profileResult.data?.fullName?.ifBlank { null }
+                    )
+                }
+            }
+        }
+    }
+
     fun load(articleId: String) {
         this.articleId = articleId
         if (articleId.isBlank()) return
@@ -34,12 +56,16 @@ class CommentsViewModel(
 
         _uiState.value = _uiState.value?.copy(isLoading = true)
         viewModelScope.launch {
+            if (_uiState.value?.currentUserFullName == null) {
+                refreshCurrentUserProfile()
+            }
+
             when (val result = supabaseService.fetchComments(articleId, token)) {
                 is ApiResult.Success -> {
-                    _uiState.value = CommentsUiState(isLoading = false, comments = result.data)
+                    _uiState.value = _uiState.value?.copy(isLoading = false, comments = result.data)
                 }
                 is ApiResult.Failure -> {
-                    _uiState.value = CommentsUiState(
+                    _uiState.value = _uiState.value?.copy(
                         isLoading = false,
                         messageRes = UiErrorMapper.toMessageRes(result.error)
                     )
@@ -48,7 +74,7 @@ class CommentsViewModel(
         }
     }
 
-    fun postComment(content: String, displayName: String) {
+    fun postComment(content: String) {
         val trimmed = content.trim()
         if (trimmed.isBlank() || articleId.isBlank()) return
 
@@ -59,15 +85,17 @@ class CommentsViewModel(
             return
         }
 
-        val resolvedName = displayName.ifBlank { "NewsHub User" }
+        val displayName = _uiState.value?.currentUserFullName ?: "NewsHub User"
+        val avatarUrl = _uiState.value?.currentUserAvatar
 
         viewModelScope.launch {
             when (
                 val result = supabaseService.postComment(
                     articleId = articleId,
                     userId = userId,
-                    displayName = resolvedName,
+                    displayName = displayName,
                     content = trimmed,
+                    avatarUrl = avatarUrl,
                     accessToken = token
                 )
             ) {

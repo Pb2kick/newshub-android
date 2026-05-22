@@ -6,6 +6,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.CircleCropTransformation
+import com.example.newshub.R
 import com.example.newshub.databinding.ItemCommentBinding
 import com.example.newshub.formatRelativeTime
 
@@ -37,7 +40,23 @@ class CommentAdapter(
                 .take(2)
                 .joinToString("")
                 .ifBlank { "?" }
+            
             binding.textAvatarInitials.text = initials
+            
+            if (!item.avatarUrl.isNullOrBlank()) {
+                binding.imageAvatar.visibility = View.VISIBLE
+                binding.textAvatarInitials.visibility = View.GONE
+                binding.imageAvatar.load(item.avatarUrl) {
+                    crossfade(true)
+                    placeholder(R.drawable.bg_profile_avatar)
+                    error(R.drawable.bg_profile_avatar)
+                    transformations(CircleCropTransformation())
+                }
+            } else {
+                binding.imageAvatar.visibility = View.GONE
+                binding.textAvatarInitials.visibility = View.VISIBLE
+            }
+
             binding.textDisplayName.text = item.displayName
             binding.textTimestamp.text = formatRelativeTime(item.createdAt)
             binding.textContent.text = item.content

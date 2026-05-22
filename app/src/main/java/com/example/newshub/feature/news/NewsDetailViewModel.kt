@@ -26,13 +26,23 @@ class NewsDetailViewModel(
     private val _uiState = MutableLiveData(NewsDetailUiState())
     val uiState: LiveData<NewsDetailUiState> = _uiState
 
-    fun loadArticle(url: String?, fallbackTitle: String, fallbackSource: String, fallbackPublishedAt: String, fallbackSummary: String) {
+    fun loadArticle(
+        url: String?,
+        fallbackTitle: String,
+        fallbackSource: String,
+        fallbackAuthor: String?,
+        fallbackAuthorImageUrl: String?,
+        fallbackPublishedAt: String,
+        fallbackSummary: String
+    ) {
         if (url.isNullOrBlank()) {
             _uiState.value = NewsDetailUiState(
                 isLoading = false,
                 detail = NewsArticleDetail(
                     title = fallbackTitle,
                     source = fallbackSource,
+                    author = fallbackAuthor,
+                    authorImageUrl = fallbackAuthorImageUrl,
                     publishedAt = fallbackPublishedAt,
                     content = fallbackSummary.ifBlank { "No article content available." },
                     articleUrl = null
@@ -53,6 +63,8 @@ class NewsDetailViewModel(
                         detail = NewsArticleDetail(
                             title = fallbackTitle,
                             source = fallbackSource,
+                            author = fallbackAuthor,
+                            authorImageUrl = fallbackAuthorImageUrl,
                             publishedAt = fallbackPublishedAt,
                             content = fallbackSummary.ifBlank { "No article content available." },
                             articleUrl = url

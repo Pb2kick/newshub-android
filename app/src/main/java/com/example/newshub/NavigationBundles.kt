@@ -11,6 +11,7 @@ fun NewsArticle.toDetailBundle(): Bundle {
         putString("articleSummary", summary)
         putString("articleCategory", category)
         putString("articleAuthor", author)
+        putString("articleAuthorImage", authorImageUrl)
         putString("articleReadTime", readTime)
         putString("articleImage", imageUrl)
     }

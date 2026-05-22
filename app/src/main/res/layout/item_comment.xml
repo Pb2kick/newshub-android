@@ -7,18 +7,35 @@
     android:paddingTop="10dp"
     android:paddingBottom="10dp">
 
-    <TextView
-        android:id="@+id/text_avatar_initials"
+    <FrameLayout
+        android:id="@+id/layout_avatar_container"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:background="@drawable/bg_auth_logo"
-        android:gravity="center"
-        android:textColor="@android:color/white"
-        android:textSize="12sp"
-        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="MS" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/image_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_profile_avatar"
+            android:contentDescription="@string/profile_picture_description"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            tools:src="@drawable/bg_home_news_thumb_1"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/text_avatar_initials"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_auth_logo"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="MS" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/text_display_name"
@@ -29,8 +46,8 @@
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/button_delete"
-        app:layout_constraintStart_toEndOf="@id/text_avatar_initials"
-        app:layout_constraintTop_toTopOf="@id/text_avatar_initials"
+        app:layout_constraintStart_toEndOf="@id/layout_avatar_container"
+        app:layout_constraintTop_toTopOf="@id/layout_avatar_container"
         tools:text="Marie Santos" />
 
     <TextView
@@ -70,7 +87,7 @@
         android:textColor="@color/home_muted"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/text_avatar_initials"
+        app:layout_constraintStart_toEndOf="@id/layout_avatar_container"
         app:layout_constraintTop_toBottomOf="@id/text_display_name"
         tools:text="4 hours ago" />
 
@@ -83,7 +100,7 @@
         android:textColor="@color/home_text_secondary"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/text_avatar_initials"
+        app:layout_constraintStart_toEndOf="@id/layout_avatar_container"
         app:layout_constraintTop_toBottomOf="@id/text_timestamp"
         tools:text="Comment text goes here." />
 
@@ -95,7 +112,7 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/text_avatar_initials"
+        app:layout_constraintStart_toEndOf="@id/layout_avatar_container"
         app:layout_constraintTop_toBottomOf="@id/text_content">
 
         <ImageButton

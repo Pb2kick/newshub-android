@@ -19,6 +19,7 @@ data class NewsArticle(
     val summary: String,
     val source: String,
     val author: String,
+    val authorImageUrl: String?,
     val category: String,
     val publishedAt: String,
     val readTime: String,
@@ -35,6 +36,8 @@ data class NewsPageResult(
 data class NewsArticleDetail(
     val title: String,
     val source: String,
+    val author: String?,
+    val authorImageUrl: String?,
     val publishedAt: String,
     val content: String,
     val articleUrl: String?
@@ -145,11 +148,13 @@ class BackendService {
 
             ApiResult.Success(
                 NewsArticleDetail(
-                    title = obj.optString("title", "headline").ifBlank { "News Details" },
-                    source = obj.optString("source", "author", "publisher").ifBlank { "NewsHub" },
-                    publishedAt = obj.optString("publishedAt", "published_at", "date"),
-                    content = obj.optString("content", "html", "body", "text").ifBlank { "No article content available." },
-                    articleUrl = obj.optNullableString("url", "articleUrl", "link") ?: url
+                    title = obj.optString("title", "headline", "name", "title").ifBlank { "" },
+                    source = obj.optString("source", "publisher", "site", "sourceName").ifBlank { "NewsHub" },
+                    author = obj.optNullableString("author", "writer", "byline", "creator"),
+                    authorImageUrl = obj.optNullableString("authorImageUrl", "author_image", "publisher_logo", "source_icon", "authorPhoto"),
+                    publishedAt = obj.optString("publishedAt", "published_at", "date", "created_at"),
+                    content = obj.optString("content", "html", "body", "text", "description").ifBlank { "No article content available." },
+                    articleUrl = obj.optNullableString("url", "articleUrl", "link", "sourceUrl") ?: url
                 )
             )
         }
@@ -248,16 +253,17 @@ class BackendService {
     }
 
     private fun parseArticle(row: JsonObject): NewsArticle? {
-        val title = row.optString("title", "headline")
+        val title = row.optString("title", "headline", "name", "text")
         if (title.isBlank()) return null
         return NewsArticle(
             id = row.optString("id", "newsId", "uuid").ifBlank { title.hashCode().toString() },
             title = title,
             summary = row.optString("summary", "description", "snippet", "excerpt", "content"),
-            source = row.optString("source", "author", "publisher", "sourceType").ifBlank { "NewsHub" },
-            author = row.optString("author", "publisher", "source").ifBlank { "NewsHub" },
-            category = row.optString("category", "section", "topic").ifBlank { "Top Stories" },
-            publishedAt = row.optString("publishedAt", "published_at", "date"),
+            source = row.optString("source", "publisher", "site", "sourceName").ifBlank { "NewsHub" },
+            author = row.optString("author", "publisher", "source", "creator").ifBlank { "NewsHub" },
+            authorImageUrl = row.optNullableString("authorImageUrl", "author_image", "publisher_logo", "source_icon", "authorPhoto"),
+            category = row.optString("category", "section", "topic", "tag").ifBlank { "Top Stories" },
+            publishedAt = row.optString("publishedAt", "published_at", "date", "created_at"),
             readTime = row.optString("readTime", "read_time", "readingTime").ifBlank { "3 min read" },
             imageUrl = row.optNullableString("imageUrl", "image_url", "thumbnail", "image"),
             articleUrl = row.optNullableString("url", "articleUrl", "link", "sourceUrl")

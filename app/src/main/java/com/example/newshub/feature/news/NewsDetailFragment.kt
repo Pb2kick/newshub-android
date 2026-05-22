@@ -16,6 +16,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
+import coil.transform.CircleCropTransformation
 import com.example.newshub.R
 import com.example.newshub.core.session.AndroidSessionStore
 import com.example.newshub.databinding.FragmentNewsDetailBinding
@@ -68,23 +69,26 @@ class NewsDetailFragment : Fragment() {
         val articleSummary = arguments?.getString("articleSummary").orEmpty()
         val articleCategory = arguments?.getString("articleCategory").orEmpty().ifBlank { "Top Stories" }
         val articleAuthor = arguments?.getString("articleAuthor").orEmpty().ifBlank { "NewsHub" }
+        val articleAuthorImage = arguments?.getString("articleAuthorImage")
         val articleReadTime = arguments?.getString("articleReadTime").orEmpty().ifBlank { "3 min read" }
         val articleImage = arguments?.getString("articleImage")
 
+        // Initial UI state from arguments
+        binding.textTitle.text = articleTitle.ifBlank { getString(R.string.news_detail_title) }
         binding.textCategory.text = articleCategory.uppercase()
         binding.textReadTime.text = articleReadTime
-        binding.textAuthorName.text = articleAuthor
+        binding.textAuthorName.text = articleAuthor.ifBlank { articleSource }.ifBlank { "NewsHub" }
         binding.textAuthorMeta.text = listOf(articlePublishedAt, getString(R.string.article_updated_placeholder))
             .filter { it.isNotBlank() }
             .joinToString("  •  ")
 
-        binding.imageAuthor.load("https://i.pravatar.cc/150?img=12") {
+        binding.imageAuthor.load(articleAuthorImage) {
             crossfade(true)
+            placeholder(R.drawable.bg_profile_avatar)
+            error(R.drawable.bg_profile_avatar)
+            transformations(CircleCropTransformation())
         }
-        binding.imageCommentAvatar.load("https://i.pravatar.cc/150?img=5") {
-            crossfade(true)
-            placeholder(R.drawable.bg_auth_logo)
-        }
+        
         binding.imageArticle.load(articleImage) {
             crossfade(true)
             placeholder(R.drawable.bg_home_news_thumb_1)
@@ -156,25 +160,39 @@ class NewsDetailFragment : Fragment() {
 
         binding.buttonPostComment.setOnClickListener {
             val text = binding.inputComment.text?.toString().orEmpty()
-            commentsViewModel.postComment(text, articleAuthor)
+            commentsViewModel.postComment(text)
             binding.inputComment.text?.clear()
         }
 
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
             binding.progressDetail.visibility = if (state.isLoading) View.VISIBLE else View.GONE
             val detail = state.detail
-            val resolvedTitle = detail?.title.orEmpty().ifBlank { articleTitle }
-            val resolvedSource = detail?.source.orEmpty().ifBlank { articleSource }
-            val resolvedDate = detail?.publishedAt.orEmpty().ifBlank { articlePublishedAt }
-            val resolvedBody = detail?.content.orEmpty().ifBlank { articleSummary }
+            if (detail != null) {
+                val resolvedTitle = detail.title.ifBlank { articleTitle }
+                val resolvedAuthor = detail.author?.ifBlank { null } ?: detail.source.ifBlank { articleAuthor }
+                val resolvedDate = detail.publishedAt.ifBlank { articlePublishedAt }
+                val resolvedBody = detail.content.ifBlank { articleSummary }
 
-            binding.textTitle.text = resolvedTitle
-            binding.textAuthorMeta.text = listOf(resolvedDate, getString(R.string.article_updated_placeholder))
-                .filter { it.isNotBlank() }
-                .joinToString("  •  ")
-            binding.textContent.text = resolvedBody
-            binding.textPhotoCaption.text = getString(R.string.article_photo_caption_source, resolvedSource)
-            binding.buttonOpenSource.isEnabled = !detail?.articleUrl.isNullOrBlank()
+                binding.textTitle.text = resolvedTitle.ifBlank { getString(R.string.news_detail_title) }
+                binding.textAuthorName.text = resolvedAuthor
+                
+                if (!detail.authorImageUrl.isNullOrBlank()) {
+                    binding.imageAuthor.load(detail.authorImageUrl) {
+                        crossfade(true)
+                        placeholder(R.drawable.bg_profile_avatar)
+                        error(R.drawable.bg_profile_avatar)
+                        transformations(CircleCropTransformation())
+                    }
+                }
+
+                binding.textAuthorMeta.text = listOf(resolvedDate, getString(R.string.article_updated_placeholder))
+                    .filter { it.isNotBlank() }
+                    .joinToString("  •  ")
+                binding.textContent.text = resolvedBody
+                binding.textPhotoCaption.text = getString(R.string.article_photo_caption_source, detail.source.ifBlank { "NewsHub" })
+                binding.buttonOpenSource.isEnabled = !detail.articleUrl.isNullOrBlank()
+            }
+            
             relatedAdapter.submitList(state.relatedArticles)
             state.messageRes?.let {
                 Toast.makeText(requireContext(), getString(it), Toast.LENGTH_SHORT).show()
@@ -185,6 +203,10 @@ class NewsDetailFragment : Fragment() {
         commentsViewModel.uiState.observe(viewLifecycleOwner) { state ->
             binding.textCommentsHeader.text = getString(R.string.comments_header, state.comments.size)
             commentAdapter.submitList(state.comments)
+            
+            // Update the user's avatar in the "Share your thoughts" input
+            updateCommentInputAvatar(state.currentUserAvatar, state.currentUserFullName)
+
             state.messageRes?.let {
                 Toast.makeText(requireContext(), getString(it), Toast.LENGTH_SHORT).show()
                 commentsViewModel.consumeMessage()
@@ -195,6 +217,27 @@ class NewsDetailFragment : Fragment() {
         viewModel.loadRelated(articleCategory, articleId)
         if (articleId.isNotBlank()) {
             commentsViewModel.load(articleId)
+        }
+    }
+
+    private fun updateCommentInputAvatar(url: String?, fullName: String?) {
+        if (!url.isNullOrBlank()) {
+            binding.imageCommentAvatar.load(url) {
+                crossfade(true)
+                placeholder(R.drawable.bg_auth_logo)
+                error(R.drawable.bg_auth_logo)
+                transformations(CircleCropTransformation())
+            }
+            binding.textCommentAvatarInitials.visibility = View.GONE
+        } else {
+            binding.imageCommentAvatar.setImageResource(R.drawable.bg_auth_logo)
+            val initials = fullName?.trim()?.split(" ")
+                ?.mapNotNull { it.firstOrNull()?.uppercaseChar() }
+                ?.take(2)
+                ?.joinToString("")
+                ?.ifBlank { "NH" } ?: "NH"
+            binding.textCommentAvatarInitials.text = initials
+            binding.textCommentAvatarInitials.visibility = View.VISIBLE
         }
     }
 

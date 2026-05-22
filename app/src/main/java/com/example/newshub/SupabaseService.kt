@@ -432,6 +432,7 @@ class SupabaseService {
         withContext(Dispatchers.IO) {
             runApiCall {
                 val encodedArticleId = urlEncode(articleId)
+                val photoColumn = BuildConfig.SUPABASE_PROFILE_PHOTO_COLUMN
                 val url = "$supabaseUrl/rest/v1/article_comments" +
                     "?article_id=eq.$encodedArticleId&order=created_at.asc&limit=50"
                 val response = restApi.fetchRows(url, supabaseAnonKey, bearer(accessToken))
@@ -446,19 +447,25 @@ class SupabaseService {
         userId: String,
         displayName: String,
         content: String,
+        avatarUrl: String?,
         accessToken: String
     ): ApiResult<Unit> = withContext(Dispatchers.IO) {
         runApiCall {
+            val photoColumn = BuildConfig.SUPABASE_PROFILE_PHOTO_COLUMN
+            val body = mutableMapOf<String, Any?>(
+                "article_id" to articleId,
+                "user_id" to userId,
+                "display_name" to displayName,
+                "content" to content.trim()
+            )
+            if (!avatarUrl.isNullOrBlank()) {
+                body[photoColumn] = avatarUrl
+            }
             val response = restApi.insertRow(
                 url = "$supabaseUrl/rest/v1/article_comments",
                 apiKey = supabaseAnonKey,
                 authorization = bearer(accessToken),
-                body = mapOf(
-                    "article_id" to articleId,
-                    "user_id" to userId,
-                    "display_name" to displayName,
-                    "content" to content.trim()
-                )
+                body = body
             )
             if (!response.isSuccessful) return@runApiCall ApiResult.Failure(mapFailure(response))
             ApiResult.Success(Unit)
@@ -839,11 +846,13 @@ class SupabaseService {
         val id = row.optString("id")
         if (id.isBlank()) return null
         val parent = row.optString("parent_id", "parentId").ifBlank { null }
+        val photoColumn = BuildConfig.SUPABASE_PROFILE_PHOTO_COLUMN
         return CommentItem(
             id = id,
             articleId = row.optString("article_id", "articleId"),
             userId = row.optString("user_id", "userId"),
             displayName = row.optString("display_name", "displayName"),
+            avatarUrl = row.optString(photoColumn, *fallbackPhotoColumns.toTypedArray()).ifBlank { null },
             content = row.optString("content"),
             parentId = parent,
             createdAt = row.optString("created_at", "createdAt")

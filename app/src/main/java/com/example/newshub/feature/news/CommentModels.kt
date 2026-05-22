@@ -5,6 +5,7 @@ data class CommentItem(
     val articleId: String,
     val userId: String,
     val displayName: String,
+    val avatarUrl: String?,
     val content: String,
     val parentId: String?,
     val createdAt: String
