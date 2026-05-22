@@ -213,7 +213,15 @@ class NewsDetailFragment : Fragment() {
             }
         }
 
-        viewModel.loadArticle(articleUrl, articleTitle, articleSource, articlePublishedAt, articleSummary)
+        viewModel.loadArticle(
+            url = articleUrl,
+            fallbackTitle = articleTitle,
+            fallbackSource = articleSource,
+            fallbackAuthor = articleAuthor,
+            fallbackAuthorImageUrl = articleAuthorImage,
+            fallbackPublishedAt = articlePublishedAt,
+            fallbackSummary = articleSummary
+        )
         viewModel.loadRelated(articleCategory, articleId)
         if (articleId.isNotBlank()) {
             commentsViewModel.load(articleId)
